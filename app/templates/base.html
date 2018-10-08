@@ -1,0 +1,77 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+{% endblock %}
+
+{% block navbar %}
+    <style type="text/css">
+        {% include "css/navbar_2.css" %}
+    </style>
+
+    <div class="navbar navbar-inverse navbar-custom" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">OpenWRT ACP</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('main.index') }}"><span
+                            class="glyphicon glyphicon-dashboard"></span> Dashboard</a></li>
+                    <li><a href="{{ url_for('main.devices') }}"><span
+                            class="glyphicon glyphicon-hdd"></span> Devices</a></li>
+                    <li><a href="{{ url_for('main.statistics') }}"><span
+                            class="glyphicon glyphicon-stats"></span> Statistics</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('auth.logout') }}"><span
+                                class="glyphicon glyphicon-log-out"></span><strong> Log Out</strong></a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}"><span
+                                class="glyphicon glyphicon-log-in"></span><strong> Log In</strong></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <style type="text/css">
+        {% include "css/center_form.css" %}
+    </style>
+
+    <div class="container">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% block page_content %}{% endblock %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+
+    <script>
+        $(document).ready(function () {
+            $('li.active').removeClass('active');
+            $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
+        });
+    </script>
+{% endblock %}
