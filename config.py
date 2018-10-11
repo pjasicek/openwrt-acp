@@ -15,6 +15,9 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    LOGIN_USERNAME = os.environ.get('LOGIN_USERNAME') or 'admin'
+    LOGIN_PASSWORD = os.environ.get('LOGIN_PASSWORD') or 'admin'
+
     @staticmethod
     def init_app(app):
         pass

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Login{% endblock %}
+{% block title %}OpenWRT ACP - Login{% endblock %}
 
 {% block page_content %}
     <section id="loginform" class="outer-wrapper">
@@ -10,11 +10,12 @@
                 <div class="row">
                     <div class="col-sm-4 col-sm-offset-4">
                         <div class="page-header">
-                            <h1>Login</h1>
+                            <h2><strong>Authorization Required</strong></h2>
+                            <p>Please enter your username and password.</p>
                         </div>
-                        {{ wtf.quick_form(form) }}
+                        {{ wtf.quick_form(form, button_map={'submit':'default'}) }}
                         <br>
-                        <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
+                        {# <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p> #}
                     </div>
                 </div>
             </div>
