@@ -1,0 +1,23 @@
+{
+  "username": "root",
+  "password": "root",
+  "key": "openwrt_key.priv",
+  "openwrts": [
+    {
+      "name": "OpenWRT1",
+      "ip_address": "192.168.78.102"
+    },
+    {
+      "name": "OpenWRT2",
+      "ip_address": "192.168.78.103"
+    },
+    {
+      "name": "OpenWRT3",
+      "ip_address": "192.168.78.104"
+    },
+    {
+      "name": "OpenWRT4",
+      "ip_address": "192.168.78.105"
+    }
+  ]
+}

@@ -3,7 +3,231 @@
 {% block title %}OpenWRT ACP{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
-</div>
+
+    <style type="text/css">
+        {% include "css/bootstrap-editable.css" %}
+
+        .table > tbody > tr > td {
+            vertical-align: middle;
+        }
+
+        .table > tbody > tr > th {
+            vertical-align: middle;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2><strong>Access Points</strong></h2>
+    </div>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="head">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">IP Address</th>
+            <th scope="col">Ping</th>
+            <th scope="col">LuCI</th>
+            <th scope="col">SSH</th>
+            <th scope="col">Hostname</th>
+            <th scope="col">Firmware</th>
+            <th scope="col">Uptime</th>
+            <th scope="col">Clients</th>
+            <th scope="col">Down</th>
+            <th scope="col">Up</th>
+
+            <th scope="col" data->Comment</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for openwrt in openwrts %}
+            {#
+            {% if openwrt.ping == False %}
+                <tr class="danger">
+                    {% else %}
+                <tr class="success">
+            {% endif %}
+            #}
+            {% set openwrt_url = 'https://' + openwrt.ip_address + ':4443' %}
+            {% set comment = openwrt.comment %}
+            {% if comment == '' %}{% set comment = '-' %}{% endif %}
+            {% set openwrt_detail = url_for('main.openwrts', openwrt_name=openwrt.name) %}
+            <tr name="{{ openwrt.name }}">
+                <th scope="row" id={{ openwrt.name }} name="name">
+                    <a name="openwrt_detail" {% if openwrt.ping == False %}disabled{% else %}href="{{ openwrt_detail }}"{% endif %}
+                       {% if openwrt.ping == False %}class="btn btn-primary"{% else %}class="btn btn-primary"{% endif %}>{{ openwrt.name }}</a>
+                </th>
+                <td name="ip_address"><a href="{{ openwrt_url }}" target='_blank'>{{ openwrt.ip_address }}</a></td>
+                <td name="ping" class="text-center">{{ render_tick_cross(openwrt.ping) }}</td>
+                <td name="luci" class="text-center">{{ render_tick_cross(openwrt.luci) }}</td>
+                <td name="ssh" class="text-center">{{ render_tick_cross(openwrt.ssh) }}</td>
+                <td name="hostname" class="col-md-1">{{ openwrt.hostname }}</td>
+                <td name="firmware" class="col-md-2">{{ openwrt.firmware }}</td>
+                <td name="uptime" class="col-md-1">{{ openwrt.uptime }}</td>
+                <td name="clients" class="col-md-1">{{ openwrt.clients }}</td>
+                <td name="down" class="col-md-1">{{ openwrt.down }}</td>
+                <td name="up" class="col-md-1">{{ openwrt.up }}</td>
+                <td name="comment" class="col-md-2" style="word-wrap: break-word;min-width: 160px;max-width: 160px;">
+                    <span href="#" name="comment" data-type="text" data-placement="top"
+                          data-title="Enter comment" data-value="" style="cursor: pointer">
+                        <div style="height:100%;width:100%;"><strong>{{ comment }}</strong></div>
+                    </span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+    <div>
+        <button id="refresh" class="btn btn-primary btn-lg" type="button">Refresh</button>
+        <span id="refresh_status" style="display:none">
+            <img style="padding-left: 10px" src="/static/img/loading_32.gif" alt="Loading"
+                 style="vertical-align:middle"/>
+            <span style="padding-left: 5px">Refreshing statuses of all OpenWRTs ...</span>
+        </span>
+    </div>
+
+    <div id="refresh_section" style="display:block; max-width: 100%">
+        <span id="refresh_text" style="padding-top: 10px; display:inline-block; font-weight: bold">
+            OpenWRT refresh status
+        </span>
+        <div class="progress" style="width: 50%; margin-top: 10px">
+            <div id="progress_bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0"
+                 aria-valuemin="0"
+                 aria-valuemax="100" style="width: 0%">
+                <span class="progress-bar-label">0/0</span>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script src="{{ url_for('static', filename='js/bootstrap-editable.min.js') }}"></script>
+
+    <script>
+        var refresh_status = function (json_data) {
+            var progress = (json_data.updated_openwrts / json_data.total_openwrts) * parseFloat(100)
+
+            $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
+            $('.progress-bar-label').text(json_data.updated_openwrts + '/' + json_data.total_openwrts);
+
+            if (json_data.total_openwrts == null || json_data.total_openwrts == 0) {
+                $('#refresh_text').html('Refresh status is unknown');
+                $('#progress_bar').removeClass('active');
+            }
+            else if (json_data.updated_openwrts == json_data.total_openwrts) {
+                $('#refresh_text').html('Refresh finished &#10004; (' + json_data.timestamp + ')');
+                // ?
+                //$('#progress_bar').removeClass('active');
+            }
+            else {
+                $('#refresh_text').html('Refresh in progress (' + json_data.current_openwrt + ') ...');
+                $('#progress_bar').addClass('active');
+            }
+        };
+
+        $(document).ready(function () {
+            $.fn.editable.defaults.mode = 'inline';
+            $('span[name=comment]').editable();
+            $('span[name=comment]').on('save', function (e, params) {
+                var openwrtName = $(this).closest('tr').find('th').first().attr('id');
+                console.log('OpenWRT name: ' + openwrtName);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/openwrt/comment',
+                    data: JSON.stringify({
+                        openwrt_name: openwrtName,
+                        comment: params.newValue
+                    }),
+                    contentType: "application/json",
+                    dataType: 'json'
+                });
+            });
+
+            $('a[name=openwrt_detail]').click(function () {
+                var openwrtName = $(this).closest('tr').find('th').first().attr('id');
+                console.log('OpenWRT name: ' + openwrtName);
+            });
+        });
+
+        namespace = '/ws';
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+        socket.on('connect', function () {
+            console.log('connected');
+        });
+        socket.on('refresh_status', function (data) {
+            refresh_status(data);
+        });
+        socket.on('openwrt_refreshed', function (data) {
+            // data = openwrt db model json
+            // we will recreate the row
+            if (data == null || data.name == null) {
+                return;
+            }
+            var row = $('tr[name=' + data.name + ']');
+            console.log(row.attr('name'));
+
+            var set_status_symbol = function (elem, is_true) {
+                if (is_true) {
+                    elem.html('&#10004;');
+                    elem.css('color', 'green')
+                }
+                else {
+                    elem.html('&#10008;');
+                    elem.css('color', 'red')
+                }
+            };
+
+            set_status_symbol(row.children('td[name=ping]').find('span'), data.ping);
+            set_status_symbol(row.children('td[name=ssh]').find('span'), data.ssh);
+            set_status_symbol(row.children('td[name=luci]').find('span'), data.luci);
+
+            // Disable the OpenWRT button
+            if (data.ping == false) {
+                row.children('th[name=name]').find('a').attr('disabled', true);
+                row.children('th[name=name]').find('a').removeAttr('href');
+                row.children('th[name=name]').find('a').attr('class', 'btn btn-primary')
+            }
+            else {
+                link = location.protocol + '//' + document.domain + ':' + location.port + '/openwrts/' + data.name;
+                row.children('th[name=name]').find('a').attr('disabled', false);
+                row.children('th[name=name]').find('a').attr('href', link);
+                row.children('th[name=name]').find('a').attr('class', 'btn btn-primary')
+            }
+
+            row.children('td[name=hostname]').html(data.hostname);
+            row.children('td[name=firmware]').html(data.firmware);
+            row.children('td[name=uptime]').html(data.uptime);
+            row.children('td[name=clients]').html(data.clients);
+            row.children('td[name=down]').html(data.down);
+            row.children('td[name=up]').html(data.up);
+        });
+
+        $('#refresh').click(function () {
+            var refresh_section = $('#refresh_section');
+            refresh_section.show();
+
+            $.ajax({
+                type: 'POST',
+                url: '/openwrt/refresh_all',
+                success: function (data, textStatus, xhr) {
+                    $('#refresh_text').text('Started status refresh job of OpenWRTs ...');
+                },
+                error: function (data) {
+                    if (data.status == 409) {
+                        $('#refresh_text').text('Refresh already in progress ...');
+                    }
+                    else {
+                        $('#refresh_text').text('Server error. Je to shit, sorry.');
+                    }
+                },
+                complete: function (data) {
+                },
+            });
+        });
+    </script>
 {% endblock %}

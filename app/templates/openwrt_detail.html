@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% macro render_tick_cross(cond) -%}
+    {% if cond == True %}
+        <strong><span style="color:green">&#10004;</span></strong>
+    {% else %}
+        <strong><span style="color:red">&#10008;</span></strong>
+    {% endif %}
+{%- endmacro %}
+
+{% block title %}OpenWRT ACP{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+{% endblock %}
+
+{% block page_content %}
+
+    <style type="text/css">
+    </style>
+
+    <div class="page-header">
+        <h2><strong>{{ openwrt.name }}</strong></h2>
+    </div>
+
+{% endblock %}
+

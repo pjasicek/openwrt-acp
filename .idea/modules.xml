@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/openwrt-acp.iml" filepath="$PROJECT_DIR$/.idea/openwrt-acp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/rsu-acp.iml" filepath="$PROJECT_DIR$/.idea/rsu-acp.iml" />
     </modules>
   </component>
 </project>
