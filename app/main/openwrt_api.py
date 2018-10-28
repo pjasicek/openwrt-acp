@@ -48,6 +48,12 @@ class OpenwrtApi():
         self.ssh_password = ''
         self.ssh_keyfile = ''
 
+        self.intervals = (
+            ('d', 86400),  # 60 * 60 * 24
+            ('h', 3600),  # 60 * 60
+            ('m', 60),
+            ('s', 1),
+        )
 
     def init_app(self, app):
         self.luci_username = app.config['OPENWRT_USERNAME']
@@ -55,7 +61,6 @@ class OpenwrtApi():
         self.ssh_username = app.config['OPENWRT_USERNAME']
         self.ssh_password = app.config['OPENWRT_PASSWORD']
         self.ssh_keyfile = app.config['OPENWRT_SSH_KEYFILE']
-
 
     ######################### Controller -> OpenWRT common methods
 
@@ -150,6 +155,27 @@ class OpenwrtApi():
 
         return ""
 
+    def get_luci_result(self, openwrt, lib, json_data):
+        ret = self.call_luci(openwrt, lib, json_data)
+        if ret is None:
+            return "-"
+        if ret["result"] is None:
+            return "-"
+        return ret["result"]
+
+
+    def seconds_to_timeformat(self, seconds, granularity=4):
+        result = []
+
+        for name, count in self.intervals:
+            value = seconds // count
+            if value:
+                seconds -= value * count
+                if value == 1:
+                    name = name.rstrip('s')
+                result.append("{}{}".format(value, name))
+        return ' '.join(result[:granularity])
+
     ######################### OpenWRTs status refresh
 
     def test_and_set_refresh(self):
@@ -187,23 +213,20 @@ class OpenwrtApi():
                         openwrt.up = '-'
                     else:
                         openwrt.luci = self.test_luci(openwrt.ip_address, app.config['OPENWRT_USERNAME'],
-                                                       app.config['OPENWRT_PASSWORD']
-                                                       )
+                                                      app.config['OPENWRT_PASSWORD']
+                                                      )
                         openwrt.ssh = self.test_ssh(openwrt.ip_address, app.config['OPENWRT_USERNAME'],
                                                     app.config['OPENWRT_PASSWORD'], app.config['OPENWRT_SSH_KEYFILE'])
 
-                        hostname_result = self.call_luci(openwrt, 'sys', {"id": 1, "method": "hostname", "params": []})
-                        if hostname_result != None:
-                            openwrt.hostname = hostname_result["result"]
+                        boardinfoJson = json.loads(
+                            self.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+                                "ubus call system board"]}))
 
-                        fw_version = self.call_luci(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
-                            "source /etc/openwrt_release; echo $DISTRIB_DESCRIPTION"]})
-                        if fw_version != None:
-                            openwrt.firmware = fw_version["result"]
+                        openwrt.hostname = boardinfoJson['hostname']
+                        openwrt.firmware = boardinfoJson['release']['description']
 
-                        uptime_result = self.call_luci(openwrt, 'sys', {"id": 1, "method": "uptime", "params": []})
-                        if uptime_result != None:
-                            openwrt.uptime = time.strftime("%Hh %Mm %Ss", time.gmtime(int(uptime_result["result"])))
+                        uptime_result = self.get_luci_result(openwrt, 'sys', {"id": 1, "method": "uptime", "params": []})
+                        openwrt.uptime = self.seconds_to_timeformat(uptime_result)
 
                     db.session.commit()
 

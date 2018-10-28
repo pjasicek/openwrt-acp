@@ -11,8 +11,8 @@ from threading import Thread
 import main as main_root
 from .. import socketio
 from flask_socketio import emit
-
-
+import json
+from datetime import datetime
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -31,7 +31,25 @@ def openwrts(openwrt_name):
     print('openwrt: ' + openwrt_name)
     if openwrt is None:
         return render_template('404.html')
-    return render_template('openwrt_detail.html', openwrt=openwrt)
+    else:
+        boardinfoJson = json.loads(openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+            "ubus call system board"]}))
+        print(boardinfoJson)
+
+        infoJson = json.loads(openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+            "ubus call system info"]}))
+        print(infoJson)
+
+        loadavg = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+            "cat /proc/loadavg"]})
+
+        syslog = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "syslog", "params": []})
+        dmesg = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "dmesg", "params": []})
+
+        return render_template('openwrt_detail.html', openwrt=openwrt, boardinfoJson=boardinfoJson,
+                               infoJson=infoJson, uptime=openwrt_api.seconds_to_timeformat(
+                infoJson['uptime']), localtime=datetime.utcfromtimestamp(infoJson['localtime']), loadavg=loadavg,
+                               syslog=syslog, dmesg=dmesg)
 
 
 @main.route('/img/<img>')
@@ -78,6 +96,5 @@ def refresh_status():
 @socketio.on('connect', namespace='/ws')
 def test_connect():
     socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
-
 
 ##################################

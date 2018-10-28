@@ -46,7 +46,7 @@
                 <tr class="success">
             {% endif %}
             #}
-            {% set openwrt_url = 'https://' + openwrt.ip_address + ':4443' %}
+            {% set openwrt_url = 'http://' + openwrt.ip_address %}
             {% set comment = openwrt.comment %}
             {% if comment == '' %}{% set comment = '-' %}{% endif %}
             {% set openwrt_detail = url_for('main.openwrts', openwrt_name=openwrt.name) %}
@@ -60,7 +60,7 @@
                 <td name="luci" class="text-center">{{ render_tick_cross(openwrt.luci) }}</td>
                 <td name="ssh" class="text-center">{{ render_tick_cross(openwrt.ssh) }}</td>
                 <td name="hostname" class="col-md-1">{{ openwrt.hostname }}</td>
-                <td name="firmware" class="col-md-2">{{ openwrt.firmware }}</td>
+                <td name="firmware" class="col-md-3">{{ openwrt.firmware }}</td>
                 <td name="uptime" class="col-md-1">{{ openwrt.uptime }}</td>
                 <td name="clients" class="col-md-1">{{ openwrt.clients }}</td>
                 <td name="down" class="col-md-1">{{ openwrt.down }}</td>

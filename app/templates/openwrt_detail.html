@@ -10,15 +10,6 @@
 
 {% block title %}OpenWRT ACP{% endblock %}
 
-{% block scripts %}
-    {{ super() }}
-
-    <script>
-        $(document).ready(function () {
-        });
-    </script>
-{% endblock %}
-
 {% block page_content %}
 
     <style type="text/css">
@@ -28,5 +19,99 @@
         <h2><strong>{{ openwrt.name }}</strong></h2>
     </div>
 
+    <ul class="nav nav-tabs">
+        <li id="device_menuitem" class="active"><a data-toggle="tab" href="#device">Device</a></li>
+        <li><a data-toggle="tab" href="#network">Network</a></li>
+        <li><a data-toggle="tab" href="#wireless">Wireless</a></li>
+        <li><a id="syslog_tab" data-toggle="tab" href="#syslog">Syslog</a></li>
+        <li><a id="dmesg_tab" data-toggle="tab" href="#dmesg">Kernel Log</a></li>
+        {#  <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Logs
+                <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li><a data-toggle="tab" href="#syslog">syslog</a></li>
+                <li><a data-toggle="tab" href="#dmesg">dmesg</a></li>
+            </ul>
+        </li> #}
+    </ul>
+
+    <div class="tab-content">
+        <div id="device" class="tab-pane in active" >
+            <h3><strong>System</strong></h3>
+            <table class="table" width="100%" cellspacing="8">
+                <tr>
+                    <th width="25%">Hostname</th>
+                    <td>{{ boardinfoJson['hostname'] }}</td>
+                </tr>
+                <tr>
+                    <th width="25%">Model</th>
+                    <td>{{ boardinfoJson['model'] }}</td>
+                </tr>
+                <tr>
+                    <th width="25%">Firmware Version</th>
+                    <td>{{ boardinfoJson['release']['description'] }} </td>
+                </tr>
+                <tr>
+                    <th width="25%">Kernel Version</th>
+                    <td>{{ boardinfoJson['kernel'] }}</td>
+                </tr>
+                <tr>
+                    <th width="25%">Local Time</th>
+                    <td id="localtime">{{ localtime }}</td>
+                </tr>
+                <tr>
+                    <th width="25%">Uptime</th>
+                    <td id="uptime">{{ uptime }}</td>
+                </tr>
+                <tr>
+                    <th width="25%">Load Average</th>
+                    <td id="loadavg">{{ loadavg }}</td>
+                </tr>
+            </table>
+            {%  set memtotal_kB = (infoJson['memory']['total'] / 1024)|int %}
+            {%  set memfree_kB = (infoJson['memory']['free'] / 1024)|int %}
+            {%  set memused_kB = (memtotal_kB - memfree_kB)|int %}
+            {%  set memfree_pct = ((memfree_kB / memtotal_kB) * 100)|float  %}
+            {%  set memused_pct = (100 - memfree_pct)|float  %}
+            <h3><strong>Memory</strong></h3>
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width:{{ memfree_pct }}%">
+                    Free ({{ memfree_kB }} kB / {{ memtotal_kB }} kB)
+                </div>
+                <div class="progress-bar progress-bar-danger" role="progressbar" style="width:{{ memused_pct }}%">
+                    Used ({{ memused_kB }} kB / {{ memtotal_kB }} kB)
+                </div>
+            </div>
+        </div>
+        <div id="network" class="tab-pane">
+            <h3><strong>Network</strong></h3>
+        </div>
+        <div id="wireless" class="tab-pane">
+            <h3><strong>Wireless</strong></h3>
+        </div>
+        <div id="syslog" class="tab-pane">
+            <h3><strong>Syslog</strong></h3>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="35">{{ syslog }}</textarea>
+        </div>
+        <div id="dmesg" class="tab-pane">
+            <h3><strong>Kernel Log (dmesg)</strong></h3>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="35">{{ dmesg }}</textarea>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+            $('#device_menuitem').attr('class', 'active');
+
+            $('#syslog_tab').on('click', function () {
+               console.log('click')
+            });
+        });
+    </script>
 {% endblock %}
 
