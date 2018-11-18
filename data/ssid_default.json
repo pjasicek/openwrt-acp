@@ -1,0 +1,20 @@
+{
+  "ssids": [
+    {
+      "ssid": "ssid_1",
+      "enabled": 1,
+      "security_type": "WPA Personal",
+      "password": "Test1234",
+      "is_vlan": 1,
+      "vlan": 10
+    },
+    {
+      "ssid": "ssid_2",
+      "enabled": 1,
+      "security_type": "Open",
+      "password": "",
+      "is_vlan": 1,
+      "vlan": 20
+    }
+  ]
+}

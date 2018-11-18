@@ -31,6 +31,37 @@ class Openwrt(db.Model, Base):
         return '<OpenWRT %r>' % self.name
 
 
+class Network(db.Model, Base):
+    __tablename__ = 'networks'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False)
+    purpose = db.Column(db.String(64))
+    network_addr = db.Column(db.String(32), unique=True, nullable=False)
+    gateway = db.Column(db.String(32), nullable=False)
+    vlan = db.Column(db.Integer, default="")
+    is_dhcp_mode = db.Column(db.Boolean, default=True)
+    dhcp_range_from = db.Column(db.String(32), unique=True)
+    dhcp_range_to = db.Column(db.String(32), unique=True)
+    dhcp_lease_time = db.Column(db.Integer, default=86400)
+
+    def __repr__(self):
+        return '<Network %r>' % self.name
+
+
+class WirelessNetwork(db.Model, Base):
+    __tablename__ = 'wireless_networks'
+    id = db.Column(db.Integer, primary_key=True)
+    ssid = db.Column(db.String(64), unique=True, nullable=False)
+    enabled = db.Column(db.Boolean, default=True)
+    security_type = db.Column(db.String(64), default="Open")
+    password = db.Column(db.String(128), default="")
+    is_vlan = db.Column(db.Boolean, default=True)
+    vlan = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return '<WirelessNetwork %r>' % self.ssid
+
+
 # Sorry
 class GlobalState(db.Model):
     __tablename__ = 'globalstate'

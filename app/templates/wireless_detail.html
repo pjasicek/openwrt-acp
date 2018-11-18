@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% macro render_field(field) %}
+    <dt>{{ field.label }}
+    <dd>{{ field(**kwargs)|safe }}
+        {% if field.errors %}
+            <ul class=errors>
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </dd>
+{% endmacro %}
+
+{% block title %}OpenWRT ACP - Network{% endblock %}
+
+{% block page_content %}
+    <style type="text/css">
+        .form-horizontal .control-label {
+            text-align: left;
+        }
+    </style>
+
+    <div class="page-header">
+        {% if new == True %}
+            <h3><strong>New Wireless Network</strong></h3>
+        {% else %}
+            <h3><strong>Edit Wireless Network - {{ wireless.ssid }}</strong></h3>
+        {% endif %}
+    </div>
+    <div style="width: 60%">
+        <form class="form-horizontal" method="post" role="form">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.ssid.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.ssid(class_="form-control") }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.enabled.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                   {{ form.enabled() }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.security.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8 radio">
+                    {{ form.security() }}
+                </div>
+            </div>
+            <div class="form-group" id="div_password">
+                {{ form.password.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.password(class_="form-control") }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.is_vlan.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.is_vlan() }}
+                </div>
+            </div>
+            <div class="form-group" id="div_vlan">
+                {{ form.vlan.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.vlan(class_="form-control") }}
+                </div>
+            </div>
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="form-group col-12">
+                <hr>
+            </div>
+            <div style="width: 100px">
+                {{ form.submit(class_="btn btn-lg btn-primary btn-block") }}
+            </div>
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+            var securityRadioBtn = $("input[name='security']");
+            console.log(securityRadioBtn.val());
+
+            if ($("#security-0").is(":checked")) {
+                $("#div_password").hide();
+            }
+            else if ($("#security-1").is(":checked")) {
+                $("#div_password").show();
+            }
+            securityRadioBtn.change(function() {
+                console.log("change");
+                console.log($(this).val());
+                if ($(this).val() === 'Open') {
+                    $("#div_password").hide();
+                }
+                else if ($(this).val() === 'WPA Personal') {
+                    $("#div_password").show();
+                }
+            });
+
+            if ($("#is_vlan").is(":checked")) {
+                $("#div_vlan").show();
+            }
+            else {
+                $("#div_vlan").hide();
+            }
+            $("#is_vlan").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#div_vlan").show();
+                }
+                else {
+                    $("#div_vlan").hide();
+                }
+            })
+        });
+    </script>
+{% endblock %}

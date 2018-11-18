@@ -1,7 +1,7 @@
 import os
 from flask_migrate import Migrate
 from app import create_app, db, socketio
-from app.models import User, Role, Openwrt, GlobalState
+from app.models import User, Role, Openwrt, GlobalState, Network, WirelessNetwork
 from app.main import openwrt_api
 from time import sleep
 from threading import Thread
@@ -47,6 +47,33 @@ with app.app_context():
     for openwrtJson in openwrtsJson["openwrts"]:
         openwrt = Openwrt(name=openwrtJson["name"], ip_address=openwrtJson["ip_address"])
         db.session.add(openwrt)
+
+    with open('data/networks_default.json') as networksJsonFile:
+        networksJson = json.load(networksJsonFile)
+
+    for networkJson in networksJson["networks"]:
+        network = Network(name=networkJson["name"],
+                          purpose=networkJson["purpose"],
+                          network_addr=networkJson["network_addr"],
+                          gateway=networkJson["gateway"],
+                          vlan=networkJson["vlan"],
+                          is_dhcp_mode=networkJson["is_dhcp_mode"],
+                          dhcp_range_from=networkJson["dhcp_range_from"],
+                          dhcp_range_to=networkJson["dhcp_range_to"],
+                          dhcp_lease_time=networkJson["dhcp_lease_time"])
+        db.session.add(network)
+
+    with open('data/ssid_default.json') as wirelessNetworksJsonFile:
+        ssidsJson = json.load(wirelessNetworksJsonFile)
+
+    for ssidJson in ssidsJson["ssids"]:
+        ssid = WirelessNetwork(ssid=ssidJson["ssid"],
+                          enabled=ssidJson["enabled"],
+                          security_type=ssidJson["security_type"],
+                          password=ssidJson["password"],
+                          is_vlan=ssidJson["is_vlan"],
+                          vlan=ssidJson["vlan"])
+        db.session.add(ssid)
 
     db.session.commit()
 

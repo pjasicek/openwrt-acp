@@ -1,0 +1,37 @@
+{
+  "networks": [
+    {
+      "name": "AP-Management",
+      "purpose": "Corporate",
+      "network_addr": "192.168.78.0/24",
+      "gateway": "192.168.78.1",
+      "vlan": 100,
+      "is_dhcp_mode": 1,
+      "dhcp_range_from": "192.168.78.2",
+      "dhcp_range_to": "192.168.78.254",
+      "dhcp_lease_time": 86400
+    },
+    {
+      "name": "network_1",
+      "purpose": "Corporate",
+      "network_addr": "10.0.10.0/24",
+      "gateway": "10.0.10.1",
+      "vlan": 10,
+      "is_dhcp_mode": 1,
+      "dhcp_range_from": "10.0.10.2",
+      "dhcp_range_to": "10.0.10.254",
+      "dhcp_lease_time": 86400
+    },
+    {
+      "name": "network_2",
+      "purpose": "Guest",
+      "network_addr": "10.0.20.0/24",
+      "gateway": "10.0.20.1",
+      "vlan": 20,
+      "is_dhcp_mode": 1,
+      "dhcp_range_from": "10.0.20.2",
+      "dhcp_range_to": "10.0.20.254",
+      "dhcp_lease_time": 86400
+    }
+  ]
+}

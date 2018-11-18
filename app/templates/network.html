@@ -3,7 +3,71 @@
 {% block title %}OpenWRT ACP - Network{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Network</h1>
-</div>
+    <style type="text/css">
+        .table > tbody > tr > td {
+            vertical-align: middle;
+        }
+
+        .table > tbody > tr > th {
+            vertical-align: middle;
+        }
+
+    </style>
+
+    <div class="page-header">
+        <h3><strong>Networks</strong></h3>
+    </div>
+
+    <div style="width: 70%">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="head">
+            <tr>
+                <th scope="col">Name</th>
+                {# <th scope="col">Purpose</th> #}
+                <th scope="col">Network Address</th>
+                <th scope="col">Gateway IP</th>
+                <th scope="col">VLAN</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for network in networks %}
+                <tr name="{{ network.name }}">
+                    <th scope="row" class="col-md-2" id={{ network.name }}>{{ network.name }}</th>
+                    {#
+                    <td name="purpose" class="col-md-2">{{ network.purpose }}</td>
+                    #}
+                    <td name="ip_address" class="col-md-2">{{ network.network_addr }}</td>
+                    <td name="gateway_ip" class="col-md-2">{{ network.gateway }}</td>
+                    <td name="vlan" class="col-md-1">{{ network.vlan }}</td>
+                    <td name="actions" class="col-md-2">
+                        <a name="network_edit" class="btn btn-primary" style="width: 80px"
+                           href="/network/edit/{{ network.name }}">
+                            <i class="glyphicon glyphicon-edit"></i> Edit
+                        </a>
+                        <a name="network_delete" class="btn btn-danger" href="/network/delete/{{ network.name }}">
+                            <i class="glyphicon glyphicon-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </>
+
+    <div>
+        <a id="add_network" class="btn btn-success" type="button" href="/network/new">
+            <i class="glyphicon glyphicon-plus"></i> Add Network
+        </a>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
 {% endblock %}
