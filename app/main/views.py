@@ -121,18 +121,17 @@ def wireless():
 @login_required
 def new_wireless():
     form = AddWirelessForm()
+    form.network.choices = [("", "---")] + [(s.name, s.name) for s in Network.query.all()]
     if form.is_submitted():
         if form.validate():
-            vlan = 0
-            if form.is_vlan.data is True:
-                vlan = int(form.vlan.data)
+            # vlan = 0
+            # if form.is_vlan.data is True:
+            #     vlan = int(form.vlan.data)
             wireless_network = WirelessNetwork(ssid=form.ssid.data,
                                                enabled=form.enabled.data,
                                                security_type=form.security.data,
-                                               password=form.password.data,
-                                               is_vlan=form.is_vlan.data,
-                                               vlan=vlan
-                              )
+                                               password=form.password.data
+                                               )
             db.session.add(wireless_network)
             db.session.commit()
             return redirect(url_for('main.wireless'))
@@ -149,14 +148,16 @@ def edit_wireless(wireless_name):
         return render_template('404.html')
     else:
         form = AddWirelessForm()
+        form.network.choices = [("", "---")] + [(s.name, s.name) for s in Network.query.all()]
         form.is_edit = True
         if request.method == 'GET':
             form.ssid.data = wireless_name
             form.enabled.data = wireless.enabled
             form.security.data = wireless.security_type
             form.password.data = wireless.password
-            form.is_vlan.data = wireless.vlan > 1 and wireless.vlan < 4097
-            form.vlan.data = wireless.vlan
+            form.network.data = wireless.network
+            # form.is_vlan.data = wireless.vlan > 1 and wireless.vlan < 4097
+            # form.vlan.data = wireless.vlan
         else:
             if form.is_submitted():
                 if form.validate():
@@ -167,11 +168,12 @@ def edit_wireless(wireless_name):
                         wireless.password = ""
                     else:
                         wireless.password = form.password.data
-                    wireless.is_vlan = form.is_vlan.data
-                    if form.is_vlan.data == True:
-                        wireless.vlan = form.vlan.data
-                    else:
-                        wireless.vlan = 1
+                    wireless.network = form.network.data
+                    # wireless.is_vlan = form.is_vlan.data
+                    # if form.is_vlan.data == True:
+                    #     wireless.vlan = form.vlan.data
+                    # else:
+                    #     wireless.vlan = 1
                     db.session.commit()
                     return redirect(url_for('main.wireless'))
                 else:
@@ -229,6 +231,7 @@ def openwrts(openwrt_name):
 
 
 @main.route('/img/<img>')
+@login_required
 def static_img(img):
     imgpath = 'img/' + img;
     return redirect(url_for('static', filename=imgpath))
@@ -269,7 +272,121 @@ def refresh_status():
     return openwrt_api.refresh_status.to_json()
 
 
+@main.route('/openwrt/update/<openwrt_name>', methods=['POST'])
+@login_required
+def update_openwrt(openwrt_name):
+    print('openwrt update')
+    openwrt = Openwrt.query.filter(func.lower(Openwrt.name) == func.lower(openwrt_name)).first()
+    print('openwrt: ' + openwrt_name)
+    if openwrt is None:
+        return render_template('404.html')
+
+    # Delete all non-default networks
+    # - all anonymous interfaces
+    # - all switch vlans > 2
+    all_network = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["network"]})
+    if all_network is "-":
+        return jsonify(success=False), 400
+    print(all_network)
+
+    network_whitelist = ["wan_dev", "lan_dev", "wan6", "globals", "loopback", "lan", "wan"]
+    networks_to_delete = []
+    for key in all_network:
+        network_info = all_network[key]
+        if key in network_whitelist:
+            continue
+        if network_info[".type"] == "switch_vlan":
+            if network_info["vlan"] != "1" and network_info["vlan"] != "2":
+                networks_to_delete.append(key)
+        if network_info[".type"] == "interface":
+            networks_to_delete.append(key)
+
+    print(networks_to_delete)
+
+    for nw in networks_to_delete:
+        print('deleting network: ' + nw)
+        ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "delete", "params": ["network", nw]})
+        if ret is not "-":
+            print('deleted: ' + nw)
+        else:
+            print('could not delete: ' + nw)
+
+    curr_vlan_idx = 3
+    conf_networks = Network.query.all()
+    for nw in conf_networks:
+        # 1) Create VLAN on OpenWrt switch
+        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+                                          {"method": "section",
+                                           "params": ["network", "switch_vlan", "switch_vlan_" + str(nw.vlan),
+                                                      {"device": "switch0",
+                                                       "ports": "0t 4t",
+                                                       "vlan": str(curr_vlan_idx),
+                                                       "vid": str(nw.vlan)}]})
+        curr_vlan_idx += 1
+
+        # 2) Create Network
+        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+                                          {"method": "section",
+                                           "params": ["network", "interface", nw.name,
+                                                      {"proto": "none",
+                                                       "type": "bridge",
+                                                       "ifname": "eth0." + str(nw.vlan)}]})
+
+    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["network"]})
+    if ret is not "-":
+        print('network changes commited')
+
+    # Wireless
+    all_wireless = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["wireless"]})
+    if all_wireless is "-":
+        return jsonify(success=False), 400
+    print(all_wireless)
+
+    # First delete all wireless interfaces on the device
+    wifis_to_delete = []
+    for key in all_wireless:
+        if not key.startswith('radio'):
+            wifis_to_delete.append(key)
+
+    for wifi in wifis_to_delete:
+        print('deleting wifi: ' + wifi)
+        ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "delete", "params": ["wireless", wifi]})
+        if ret is not "-":
+            print('deleted: ' + wifi)
+        else:
+            print('could not delete: ' + wifi)
+
+    conf_wireless_networks = WirelessNetwork.query.all()
+    for wifi in conf_wireless_networks:
+
+        if not wifi.enabled:
+            continue
+
+        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+                                          {"method": "section",
+                                           "params": ["wireless", "wifi-iface", wifi.ssid,
+                                                      {"device": "radio0",
+                                                       "mode": "ap",
+                                                       "ssid": wifi.ssid,
+                                                       "network": wifi.network}]})
+        if wifi.security_type == "Open":
+            openwrt_api.call_luci(openwrt, 'uci',
+                                  {'method': 'set', 'params': ["wireless", wifi.ssid, "encryption", "none"]})
+        else:
+            openwrt_api.call_luci(openwrt, 'uci',
+                                  {'method': 'set', 'params': ["wireless", wifi.ssid, "encryption", "psk2"]})
+            openwrt_api.call_luci(openwrt, 'uci',
+                                  {'method': 'set', 'params': ["wireless", wifi.ssid, "key", wifi.password]})
+
+    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["wireless"]})
+    if ret is not "-":
+        print('wireless changes commited')
+
+    return jsonify(success=True)
+
+
 @socketio.on('connect', namespace='/ws')
+@login_required
 def test_connect():
     socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
 

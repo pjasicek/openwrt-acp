@@ -42,7 +42,7 @@
             <div class="form-group">
                 {{ form.enabled.label(class_="col-sm-3 control-label") }}
                 <div class="col-sm-8">
-                   {{ form.enabled() }}
+                    {{ form.enabled() }}
                 </div>
             </div>
             <div class="form-group">
@@ -58,6 +58,13 @@
                 </div>
             </div>
             <div class="form-group">
+                {{ form.network.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.network(class_="form-control") }}
+                </div>
+            </div>
+        {#
+            <div class="form-group">
                 {{ form.is_vlan.label(class_="col-sm-3 control-label") }}
                 <div class="col-sm-8">
                     {{ form.is_vlan() }}
@@ -69,6 +76,7 @@
                     {{ form.vlan(class_="form-control") }}
                 </div>
             </div>
+        #}
             {% for message in get_flashed_messages() %}
                 <div class="alert alert-danger">
                     {{ message }}
@@ -99,7 +107,7 @@
             else if ($("#security-1").is(":checked")) {
                 $("#div_password").show();
             }
-            securityRadioBtn.change(function() {
+            securityRadioBtn.change(function () {
                 console.log("change");
                 console.log($(this).val());
                 if ($(this).val() === 'Open') {
@@ -110,7 +118,7 @@
                 }
             });
 
-            if ($("#is_vlan").is(":checked")) {
+            /*if ($("#is_vlan").is(":checked")) {
                 $("#div_vlan").show();
             }
             else {
@@ -123,7 +131,7 @@
                 else {
                     $("#div_vlan").hide();
                 }
-            })
+            })*/
         });
     </script>
 {% endblock %}

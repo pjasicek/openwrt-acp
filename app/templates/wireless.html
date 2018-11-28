@@ -24,7 +24,7 @@
             <tr>
                 <th scope="col">SSID</th>
                 <th scope="col">Enabled</th>
-                <th scope="col">VLAN</th>
+                <th scope="col">Network</th>
                 <th scope="col">Actions</th>
             </tr>
             </thead>
@@ -33,7 +33,9 @@
                 <tr name="{{ wireless.ssid }}">
                     <th scope="row" class="col-md-2" id={{ wireless.ssid }}>{{ wireless.ssid }}</th>
                     <td name="enabled" class="col-md-1">{{ render_tick_cross(wireless.enabled) }}</td>
-                    <td name="vlan" class="col-md-1">{{ wireless.vlan }}</td>
+                    <td name="network" class="col-md-1">
+                        <a href="/network/edit/{{ wireless.network }}">{{ wireless.network }}</a>
+                    </td>
                     <td name="actions" class="col-md-2">
                         <a name="network_edit" class="btn btn-primary" style="width: 80px" href="/wireless/edit/{{ wireless.ssid }}">
                             <i class="glyphicon glyphicon-edit"></i> Edit

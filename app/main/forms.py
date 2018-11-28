@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, SelectField
 from wtforms.validators import Email, Length, DataRequired, Regexp, EqualTo
 from wtforms import ValidationError
 from ..models import Network, WirelessNetwork
@@ -12,8 +12,8 @@ class AddNetworkForm(FlaskForm):
     is_edit = False
 
     name = StringField('Name', render_kw={"placeholder": "network_name"}, validators=[
-        DataRequired(), Length(1, 64),
-        Regexp('^[A-Za-z0-9_-]+$', 0,
+        DataRequired(), Length(1, 32),
+        Regexp('^[A-Za-z0-9_]+$', 0,
                'Networks must have only letters, numbers or '
                'underscores')])
     purpose = RadioField('Purpose', choices=[('Corporate', 'Corporate'), ('Guest', 'Guest')], default='Corporate')
@@ -69,8 +69,8 @@ class AddWirelessForm(FlaskForm):
     is_edit = False
 
     ssid = StringField('SSID', render_kw={"placeholder": "wifi network name"}, validators=[
-        DataRequired(), Length(1, 64),
-        Regexp('^[A-Za-z0-9_-]+$', 0,
+        DataRequired(), Length(1, 32),
+        Regexp('^[A-Za-z0-9_]+$', 0,
                'SSIDs must have only letters, numbers or '
                'underscores')])
     enabled = BooleanField('Enabled', default=True)
@@ -78,8 +78,9 @@ class AddWirelessForm(FlaskForm):
                          default='Open')
     #widget=PasswordInput(hide_value=False)
     password = StringField('Password')
-    is_vlan = BooleanField('Use VLAN', default=True)
-    vlan = StringField('VLAN', render_kw={"placeholder": "2-4096"})
+    network = SelectField(label='Network', validators=[DataRequired()])
+    # is_vlan = BooleanField('Use VLAN', default=True)
+    # vlan = StringField('VLAN', render_kw={"placeholder": "2-4096"})
 
     submit = SubmitField('Save')
 
@@ -94,14 +95,19 @@ class AddWirelessForm(FlaskForm):
             raise ValidationError('Password can contain only letters and numbers')
         return True
 
-    def validate_vlan(self, field):
-        if self.is_vlan.data is False:
-            return True
-        vlan_id = int(field.data)
-        if vlan_id < 2 or vlan_id > 4096:
-            raise ValidationError('VLAN must be a number between 2 and 4096')
-        if not self.is_edit and Network.query.filter_by(vlan=vlan_id).first():
-            raise ValidationError('VLAN ' + str(vlan_id) + ' is already in use')
+    # def validate_vlan(self, field):
+    #     if self.is_vlan.data is False:
+    #         return True
+    #     vlan_id = int(field.data)
+    #     if vlan_id < 2 or vlan_id > 4096:
+    #         raise ValidationError('VLAN must be a number between 2 and 4096')
+    #     if not self.is_edit and Network.query.filter_by(vlan=vlan_id).first():
+    #         raise ValidationError('VLAN ' + str(vlan_id) + ' is already in use')
+    #     return True
+
+    def validate_network(self, field):
+        if Network.query.filter_by(name=field.data).first() is None:
+            raise ValidationError('Select existing network')
         return True
 
     def validate_ssid(self, field):

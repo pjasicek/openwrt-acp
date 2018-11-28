@@ -55,6 +55,7 @@ class WirelessNetwork(db.Model, Base):
     enabled = db.Column(db.Boolean, default=True)
     security_type = db.Column(db.String(64), default="Open")
     password = db.Column(db.String(128), default="")
+    network = db.Column(db.String(128), default="")
     is_vlan = db.Column(db.Boolean, default=True)
     vlan = db.Column(db.Integer, default=0)
 

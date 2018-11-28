@@ -4,13 +4,18 @@
     <list default="true" id="1111fbb4-4a99-4e48-b77c-da1b826550ee" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main/openwrt_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/openwrt_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/auth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/auth/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/devices.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/css/bootstrap_override.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/css/bootstrap_override.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/network.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/network.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/wireless.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/wireless.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/wireless_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/wireless_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/networks_default.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/networks_default.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/openwrts.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/openwrts.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ssid_default.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/ssid_default.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,7 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/openwrt_acp$Flask__main_.coverage" NAME="Flask (main) Coverage Results" MODIFIED="1542560347999" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/openwrt_acp$Flask__main_.coverage" NAME="Flask (main) Coverage Results" MODIFIED="1543439592591" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/rsu_acp$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1540570056799" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/flask_test$Flask__app_py_.coverage" NAME="Flask (app/main/app.py) Coverage Results" MODIFIED="1538745369107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/flask_template$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1538941230912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -127,54 +132,55 @@
     <session id="-1585295820">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="8" />
+          <entry key="project.closed" value="11" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.6" value="6" />
-          <entry key="project.open.time.7" value="3" />
-          <entry key="project.open.time.8" value="1" />
-          <entry key="project.opened" value="12" />
+          <entry key="project.open.time.7" value="4" />
+          <entry key="project.open.time.8" value="3" />
+          <entry key="project.open.time.9" value="2" />
+          <entry key="project.opened" value="17" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="css" value="3" />
+          <entry key="css" value="12" />
           <entry key="dummy" value="55" />
-          <entry key="html" value="4537" />
-          <entry key="json" value="695" />
-          <entry key="py" value="10712" />
+          <entry key="html" value="5441" />
+          <entry key="json" value="748" />
+          <entry key="py" value="13596" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="CSS" value="3" />
-          <entry key="HTML" value="4537" />
-          <entry key="JSON" value="695" />
+          <entry key="CSS" value="12" />
+          <entry key="HTML" value="5441" />
+          <entry key="JSON" value="748" />
           <entry key="PLAIN_TEXT" value="55" />
-          <entry key="Python" value="10712" />
+          <entry key="Python" value="13596" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="css" value="5" />
-          <entry key="html" value="27" />
+          <entry key="css" value="9" />
+          <entry key="html" value="31" />
           <entry key="ico" value="1" />
           <entry key="id_rsa" value="1" />
-          <entry key="js" value="1" />
-          <entry key="json" value="7" />
+          <entry key="js" value="2" />
+          <entry key="json" value="8" />
           <entry key="priv" value="1" />
-          <entry key="py" value="64" />
+          <entry key="py" value="68" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="CSS" value="5" />
-          <entry key="HTML" value="27" />
+          <entry key="CSS" value="9" />
+          <entry key="HTML" value="31" />
           <entry key="Image" value="1" />
-          <entry key="JSON" value="7" />
-          <entry key="JavaScript" value="1" />
+          <entry key="JSON" value="8" />
+          <entry key="JavaScript" value="2" />
           <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="64" />
+          <entry key="Python" value="68" />
         </counts>
       </usages-collector>
     </session>
@@ -262,10 +268,19 @@
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/index.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="611">
+                  <caret line="60" column="110" selection-start-line="60" selection-start-column="38" selection-end-line="60" selection-end-column="110" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/main/views.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="420">
-                  <caret line="173" column="41" lean-forward="true" selection-start-line="173" selection-start-column="41" selection-end-line="173" selection-end-column="41" />
+                <state relative-caret-position="292">
+                  <caret line="319" column="109" selection-start-line="319" selection-start-column="109" selection-end-line="319" selection-end-column="109" />
                   <folding>
                     <element signature="e#0#109#0" expanded="true" />
                   </folding>
@@ -274,14 +289,28 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="843">
+                  <caret line="165" selection-start-line="165" selection-end-line="165" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/templates/wireless_detail.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="529">
-                  <caret line="106" column="17" lean-forward="true" selection-start-line="106" selection-start-column="17" selection-end-line="106" selection-end-column="17" />
-                  <folding>
-                    <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#div#8;n#form#0;n#div#1;n#!!top" expanded="true" />
-                  </folding>
+                <state relative-caret-position="136">
+                  <caret line="77" column="18" lean-forward="true" selection-start-line="77" selection-start-column="18" selection-end-line="77" selection-end-column="18" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/wtforms/fields/core.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="114">
+                  <caret line="449" column="19" selection-start-line="449" selection-start-column="13" selection-end-line="449" selection-end-column="19" />
                 </state>
               </provider>
             </entry>
@@ -289,8 +318,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/data/ssid_default.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="323">
-                  <caret line="19" column="1" lean-forward="true" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
+                <state relative-caret-position="51">
+                  <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
                 </state>
               </provider>
             </entry>
@@ -298,11 +327,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/templates/network.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="493">
-                  <caret line="32" column="19" lean-forward="true" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
-                  <folding>
-                    <element signature="n#style#0;n#button#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#!!top" expanded="true" />
-                  </folding>
+                <state relative-caret-position="561">
+                  <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
                 </state>
               </provider>
             </entry>
@@ -310,8 +336,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/data/networks_default.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="136">
-                  <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+                <state relative-caret-position="51">
+                  <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
                 </state>
               </provider>
             </entry>
@@ -319,8 +345,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/main.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1428">
-                  <caret line="84" column="21" lean-forward="true" selection-start-line="84" selection-start-column="21" selection-end-line="84" selection-end-column="21" />
+                <state relative-caret-position="690">
+                  <caret line="75" column="51" selection-start-line="75" selection-start-column="51" selection-end-line="75" selection-end-column="51" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -333,19 +359,86 @@
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/templates/index.html">
+            <entry file="file://$PROJECT_DIR$/data/openwrts.json">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="442">
-                  <caret line="62" column="87" selection-start-line="62" selection-start-column="51" selection-end-line="62" selection-end-column="87" />
+                <state relative-caret-position="204">
+                  <caret line="12" column="5" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/base.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1088">
+                  <caret line="64" column="8" selection-start-line="64" selection-start-column="8" selection-end-line="64" selection-end-column="8" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/css/navbar_2.css">
+              <provider selected="true" editor-type-id="text-editor" />
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/css/center_form.css">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="170">
+                  <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/auth/login.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="17">
+                  <caret line="1" selection-start-line="1" selection-end-line="1" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/flask_bootstrap/templates/bootstrap/base.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="374">
+                  <caret line="22" selection-start-line="22" selection-end-line="22" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/templates/css/bootstrap_override.css">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="51">
+                  <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/app/templates/base.html">
+            <entry file="file://$PROJECT_DIR$/app/main/forms.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="724">
-                  <caret line="90" column="86" lean-forward="true" selection-start-line="90" selection-start-column="86" selection-end-line="90" selection-end-column="86" />
+                <state relative-caret-position="459">
+                  <caret line="72" column="28" selection-start-line="72" selection-start-column="28" selection-end-line="72" selection-end-column="28" />
+                  <folding>
+                    <element signature="e#0#31#0" expanded="true" />
+                    <marker date="1543439476019" expanded="true" signature="4678:4834" ph="..." />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app/models.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="663">
+                  <caret line="57" column="11" selection-start-line="57" selection-start-column="11" selection-end-line="57" selection-end-column="11" />
+                  <folding>
+                    <element signature="e#0#73#0" expanded="true" />
+                    <marker date="1543433861049" expanded="true" signature="1249:1252" ph="..." />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -353,62 +446,10 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/templates/wireless.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="340">
-                  <caret line="20" column="25" selection-start-line="20" selection-start-column="25" selection-end-line="20" selection-end-column="25" />
-                  <folding>
-                    <element signature="n#style#0;n#a#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#!!top" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/templates/statistics.html">
-              <provider selected="true" editor-type-id="text-editor" />
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/models.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="190">
-                  <caret line="55" column="58" selection-start-line="55" selection-start-column="58" selection-end-line="55" selection-end-column="58" />
-                  <folding>
-                    <element signature="e#0#73#0" expanded="true" />
-                    <marker date="1542550012472" expanded="true" signature="1249:1252" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/templates/openwrt_detail.html">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="289">
-                  <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="19" selection-end-column="10" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/templates/network_detail.html">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="425">
-                  <caret line="27" column="49" lean-forward="true" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
+                <state relative-caret-position="459">
+                  <caret line="36" column="70" selection-start-line="36" selection-start-column="70" selection-end-line="36" selection-end-column="70" />
                   <folding>
                     <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app/main/forms.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="775">
-                  <caret line="92" column="56" lean-forward="true" selection-start-line="92" selection-start-column="56" selection-end-line="92" selection-end-column="56" />
-                  <folding>
-                    <element signature="e#0#31#0" expanded="true" />
-                    <marker date="1542555327848" expanded="true" signature="3689:4105" ph="..." />
                   </folding>
                 </state>
               </provider>
@@ -423,20 +464,14 @@
       <list>
         <option value="Flask Main" />
         <option value="HTML File" />
-        <option value="CSS File" />
         <option value="Python Script" />
+        <option value="JavaScript File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>rsu</find>
-      <find>config</find>
-      <find>dsrc_mac</find>
-      <find>hostname</find>
-      <find>openwrt_detail</find>
-      <find>sleep</find>
-      <find>disabled</find>
       <find>webui</find>
       <find>provisi</find>
       <find>openwrt_api</find>
@@ -458,8 +493,15 @@
       <find>\@main\.route\(\'\/wireless\/new\'\, methods\=\[\'GET\'\, \'POST\'\]\)\n\@login_required\ndef new_network\(\)\:\n    form \= AddNetworkForm\(\)\n    print\(\'asdf1\'\)\n    if form\.is_submitted\(\)\:\n        if form\.validate\(\)\:\n            network \= Network\(name\=form\.name\.data\,\n                              network_addr\=form\.network\.data\,\n                              gateway\=form\.gateway\.data\,\n                              vlan\=int\(form\.vlan\.data\)\n                              \)\n            db\.session\.add\(network\)\n            db\.session\.commit\(\)\n            return redirect\(url_for\(\'main\.network\'\)\)\n        else\:\n            flash_errors\(form\)\n    return render_template\(\'network_detail\.html\'\, form\=form\, new\=True\)\n\n\n\@main\.route\(\'\/wireless\/edit\/\&lt;string\:wireless_name\&gt;\'\, methods\=\[\'GET\'\, \'POST\'\]\)\n\@login_required\ndef edit_network\(network_name\)\:\n    network \= Network\.query\.filter\(Network\.name \=\= network_name\)\.first\(\)\n    if network is None\:\n        return render_template\(\'404\.html\'\)\n    else\:\n        form \= AddNetworkForm\(\)\n        form\.is_edit \= True\n        if request\.method \=\= \'GET\'\:\n            form\.name\.data \= network_name\n            form\.network\.data \= network\.network_addr\n            form\.gateway\.data \= network\.gateway\n            form\.vlan\.data \= network\.vlan\n        else\:\n            if form\.is_submitted\(\)\:\n                if form\.validate\(\)\:\n                    network\.name \= form\.name\.data\n                    network\.network_addr \= form\.network\.data\n                    network\.gateway \= form\.gateway\.data\n                    network\.vlan \= form\.vlan\.data\n                    db\.session\.commit\(\)\n                    return redirect\(url_for\(\'main\.network\'\)\)\n                else\:\n                    flash_errors\(form\)\n        return render_template\(\'network_detail\.html\'\, form\=form\, new\=False\, network\=network\)</find>
       <find>if form.is_submitted():</find>
       <find>delete</find>
-      <find>vlan</find>
       <find>open</find>
+      <find>update_btn</find>
+      <find>opacity</find>
+      <find>get_luci_result</find>
+      <find>interface</find>
+      <find>form.network.choices = [(&quot;&quot;, &quot;---&quot;)] + [(s.name, s.name) for s in Network.query.all()]</find>
+      <find>vlan</find>
+      <find>network</find>
+      <find>.query.all()</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\pjasi\Desktop\flask-template</dir>
@@ -472,9 +514,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/manage.py" />
-        <option value="$PROJECT_DIR$/app/auth/__init__.py" />
-        <option value="$PROJECT_DIR$/app/templates/css/center_form.css" />
         <option value="$PROJECT_DIR$/app/templates/auth/register.html" />
         <option value="$PROJECT_DIR$/app/templates/overview.html" />
         <option value="$PROJECT_DIR$/app/templates/statistics.html" />
@@ -502,27 +541,30 @@
         <option value="$PROJECT_DIR$/app/main/rsu_api.py" />
         <option value="$PROJECT_DIR$/data/openwrts_less.json" />
         <option value="$PROJECT_DIR$/app/templates/rsu_table.html" />
-        <option value="$PROJECT_DIR$/data/openwrts.json" />
         <option value="$PROJECT_DIR$/config.py" />
         <option value="$PROJECT_DIR$/app/main/__init__.py" />
         <option value="$PROJECT_DIR$/app/__init__.py" />
-        <option value="$PROJECT_DIR$/app/templates/css/bootstrap_override.css" />
-        <option value="$PROJECT_DIR$/app/main/openwrt_api.py" />
         <option value="$PROJECT_DIR$/app/templates/openwrt_detail.html" />
         <option value="$PROJECT_DIR$/app/templates/devices.html" />
-        <option value="$PROJECT_DIR$/app/templates/index.html" />
         <option value="$PROJECT_DIR$/app/templates/auth/login.html" />
         <option value="$PROJECT_DIR$/app/templates/network_detail.html" />
-        <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/app/templates/network.html" />
-        <option value="$PROJECT_DIR$/app/templates/wireless.html" />
-        <option value="$PROJECT_DIR$/app/models.py" />
-        <option value="$PROJECT_DIR$/data/ssid_default.json" />
-        <option value="$PROJECT_DIR$/app/main/forms.py" />
-        <option value="$PROJECT_DIR$/app/templates/wireless_detail.html" />
-        <option value="$PROJECT_DIR$/app/main/views.py" />
+        <option value="$PROJECT_DIR$/app/templates/css/bootstrap_override.css" />
+        <option value="$PROJECT_DIR$/app/static/js/toastr.min.js" />
+        <option value="$PROJECT_DIR$/app/static/css/toastr.min.css" />
         <option value="$PROJECT_DIR$/app/templates/base.html" />
+        <option value="$PROJECT_DIR$/app/templates/network.html" />
+        <option value="$PROJECT_DIR$/app/templates/css/toastr.min.css" />
+        <option value="$PROJECT_DIR$/data/openwrts.json" />
+        <option value="$PROJECT_DIR$/app/templates/index.html" />
+        <option value="$PROJECT_DIR$/app/main/openwrt_api.py" />
+        <option value="$PROJECT_DIR$/app/templates/wireless_detail.html" />
+        <option value="$PROJECT_DIR$/app/models.py" />
+        <option value="$PROJECT_DIR$/app/templates/wireless.html" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/app/main/views.py" />
+        <option value="$PROJECT_DIR$/data/ssid_default.json" />
         <option value="$PROJECT_DIR$/data/networks_default.json" />
+        <option value="$PROJECT_DIR$/app/main/forms.py" />
       </list>
     </option>
   </component>
@@ -652,19 +694,19 @@
     </option>
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\templates\css" />
+      <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\static\js" />
+      <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\main" />
+      <recent name="C:\Users\z003jymv\Github\rsu-acp\app\main" />
+      <recent name="C:\Users\z003jymv\Github\rsu-acp\app\rsu_commander" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\templates" />
       <recent name="C:\Users\pjasi\Desktop\openwrt-acp\data" />
       <recent name="C:\Users\z003jymv\Github\rsu-acp\data" />
       <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\static" />
       <recent name="C:\Users\pjasi\Desktop\flask-template\app\templates" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\pjasi\Desktop\openwrt-acp\app\main" />
-      <recent name="C:\Users\z003jymv\Github\rsu-acp\app\main" />
-      <recent name="C:\Users\z003jymv\Github\rsu-acp\app\rsu_commander" />
-      <recent name="C:\Users\z003jymv\PycharmProjects\flask-test\app\main" />
-      <recent name="C:\Users\z003jymv\PycharmProjects\flask-test\app" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -941,12 +983,12 @@
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21502385" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22297297" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3281372" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.27669525" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.27669525" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -976,10 +1018,6 @@
     </ignored-roots>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/main/rsu_commander/KnownRsus.py" />
-    <entry file="file://$PROJECT_DIR$/app/main/rsu_commander/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/app/main/rsu_commander/ssh.py" />
-    <entry file="file://$PROJECT_DIR$/app/main/rsu_commander/Rsu.py" />
     <entry file="file://$PROJECT_DIR$/app/main/rsu_commander/Xfer.py" />
     <entry file="file://$PROJECT_DIR$/data/rsu_commander.json" />
     <entry file="file://$PROJECT_DIR$/data/rsu_commander_nopass.json" />
@@ -1028,9 +1066,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="6" column="27" selection-start-line="6" selection-start-column="27" selection-end-line="6" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1051,31 +1086,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data/openwrts.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" selection-start-line="1" selection-end-line="3" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data/openwrt_key.priv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="459">
           <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/css/center_form.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/css/bootstrap_override.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="1" lean-forward="true" selection-start-line="5" selection-start-column="1" selection-end-line="5" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -1090,13 +1104,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="51" selection-start-line="51" selection-end-line="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/wtforms/fields/core.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="225" selection-start-line="225" selection-end-line="225" />
         </state>
       </provider>
     </entry>
@@ -1128,13 +1135,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/auth/login.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="50" selection-start-line="6" selection-start-column="50" selection-end-line="6" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/flask/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38454">
@@ -1142,55 +1142,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/auth/forms.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="23" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/auth/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="32" selection-start-line="32" selection-end-line="35" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/templates/statistics.html">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1428">
-          <caret line="84" column="21" lean-forward="true" selection-start-line="84" selection-start-column="21" selection-end-line="84" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="62" column="87" selection-start-line="62" selection-start-column="51" selection-end-line="62" selection-end-column="87" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/network.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="32" column="19" lean-forward="true" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
-          <folding>
-            <element signature="n#style#0;n#button#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/wireless.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="25" selection-start-line="20" selection-start-column="25" selection-end-line="20" selection-end-column="25" />
-          <folding>
-            <element signature="n#style#0;n#a#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#div#1;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/network_detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="27" column="49" lean-forward="true" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
-          <folding>
-            <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/templates/openwrt_detail.html">
       <provider selected="true" editor-type-id="text-editor">
@@ -1199,100 +1166,170 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/models.py">
+    <entry file="file://$PROJECT_DIR$/app/templates/network_detail.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="55" column="58" selection-start-line="55" selection-start-column="58" selection-end-line="55" selection-end-column="58" />
-          <folding>
-            <element signature="e#0#73#0" expanded="true" />
-            <marker date="1542550012472" expanded="true" signature="1249:1252" ph="..." />
-          </folding>
+        <state relative-caret-position="459">
+          <caret line="27" column="49" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/auth/forms.py">
+    <entry file="file://$PROJECT_DIR$/app/static/js/toastr.min.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="23" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
+        <state>
+          <caret column="5129" selection-start-column="5129" selection-end-column="5129" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
+    <entry file="file://$PROJECT_DIR$/app/templates/css/toastr.min.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <marker date="1540761308117" expanded="true" signature="1871:1876" ph="..." />
-            <marker date="1540761308117" expanded="true" signature="1976:6251" ph="..." />
-            <marker date="1540761308117" expanded="true" signature="5902:6251" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/auth/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="32" selection-start-line="32" selection-end-line="35" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/ssid_default.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="1" lean-forward="true" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/templates/wireless_detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
-          <caret line="106" column="17" lean-forward="true" selection-start-line="106" selection-start-column="17" selection-end-line="106" selection-end-column="17" />
-          <folding>
-            <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#8;n#form#0;n#div#1;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/main/forms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="775">
-          <caret line="92" column="56" lean-forward="true" selection-start-line="92" selection-start-column="56" selection-end-line="92" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-            <marker date="1542555327848" expanded="true" signature="3689:4105" ph="..." />
-          </folding>
+        <state relative-caret-position="2244">
+          <caret line="132" column="67" selection-start-line="132" selection-start-column="67" selection-end-line="132" selection-end-column="67" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/templates/base.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="724">
-          <caret line="90" column="86" lean-forward="true" selection-start-line="90" selection-start-column="86" selection-end-line="90" selection-end-column="86" />
+        <state relative-caret-position="1088">
+          <caret line="64" column="8" selection-start-line="64" selection-start-column="8" selection-end-line="64" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/css/navbar_2.css">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/css/center_form.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/auth/login.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/flask_bootstrap/templates/bootstrap/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/css/bootstrap_override.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/network.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/wtforms/fields/core.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="449" column="19" selection-start-line="449" selection-start-column="13" selection-end-line="449" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="843">
+          <caret line="165" selection-start-line="165" selection-end-line="165" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/wireless_detail.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="77" column="18" lean-forward="true" selection-start-line="77" selection-start-column="18" selection-end-line="77" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/wireless.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="36" column="70" selection-start-line="36" selection-start-column="70" selection-end-line="36" selection-end-column="70" />
+          <folding>
+            <element signature="n#style#0;n#div#1;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/templates/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="611">
+          <caret line="60" column="110" selection-start-line="60" selection-start-column="38" selection-end-line="60" selection-end-column="110" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="75" column="51" selection-start-line="75" selection-start-column="51" selection-end-line="75" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/openwrts.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="5" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/main/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="173" column="41" lean-forward="true" selection-start-line="173" selection-start-column="41" selection-end-line="173" selection-end-column="41" />
+        <state relative-caret-position="292">
+          <caret line="319" column="109" selection-start-line="319" selection-start-column="109" selection-end-line="319" selection-end-column="109" />
           <folding>
             <element signature="e#0#109#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/data/ssid_default.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="18" selection-start-line="3" selection-start-column="18" selection-end-line="3" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/data/networks_default.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+        <state relative-caret-position="51">
+          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="57" column="11" selection-start-line="57" selection-start-column="11" selection-end-line="57" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#73#0" expanded="true" />
+            <marker date="1543433861049" expanded="true" signature="1249:1252" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/main/forms.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="72" column="28" selection-start-line="72" selection-start-column="28" selection-end-line="72" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+            <marker date="1543439476019" expanded="true" signature="4678:4834" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

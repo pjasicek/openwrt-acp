@@ -77,7 +77,7 @@ class OpenwrtApi():
 
         print('endpoint:' + endpoint)
         try:
-            r = requests.post(endpoint, json=payload, timeout=2)
+            r = requests.post(endpoint, json=payload, timeout=5)
             print(r.text)
             print(r.status_code)
             response_json = json.loads(r.text)
@@ -105,7 +105,7 @@ class OpenwrtApi():
         payload = {"id": "1234", "method": "login", "params": [self.luci_username, self.luci_password]}
 
         try:
-            r = requests.post(endpoint, json=payload, timeout=2)
+            r = requests.post(endpoint, json=payload, timeout=5)
             response_json = json.loads(r.text)
             if r.status_code == 200 and response_json["result"] is not None:
                 print('LuCI auth OK')
@@ -119,7 +119,7 @@ class OpenwrtApi():
     # @openwrt: db model
     # @lib: uci, fs, sys, ipkg, auth
     # @json_data: in json, sent to openwrt
-    def call_luci(self, openwrt, lib, json_data, auth_retry=True, timeout=2):
+    def call_luci(self, openwrt, lib, json_data, auth_retry=True, timeout=5):
         print('call_luci: ' + openwrt.ip_address + ', ' + lib + ', ' + str(json_data))
 
         endpoint = "http://" + openwrt.ip_address + "/cgi-bin/luci/rpc/" + lib + "?auth=" + openwrt.auth_token
@@ -159,10 +159,10 @@ class OpenwrtApi():
         ret = self.call_luci(openwrt, lib, json_data)
         if ret is None:
             return "-"
+        print(ret)
         if ret["result"] is None:
             return "-"
         return ret["result"]
-
 
     def seconds_to_timeformat(self, seconds, granularity=4):
         result = []
@@ -225,7 +225,8 @@ class OpenwrtApi():
                         openwrt.hostname = boardinfoJson['hostname']
                         openwrt.firmware = boardinfoJson['release']['description']
 
-                        uptime_result = self.get_luci_result(openwrt, 'sys', {"id": 1, "method": "uptime", "params": []})
+                        uptime_result = self.get_luci_result(openwrt, 'sys',
+                                                             {"id": 1, "method": "uptime", "params": []})
                         openwrt.uptime = self.seconds_to_timeformat(uptime_result)
 
                     db.session.commit()

@@ -72,7 +72,8 @@ with app.app_context():
                           security_type=ssidJson["security_type"],
                           password=ssidJson["password"],
                           is_vlan=ssidJson["is_vlan"],
-                          vlan=ssidJson["vlan"])
+                          vlan=ssidJson["vlan"],
+                          network=ssidJson["network"])
         db.session.add(ssid)
 
     db.session.commit()

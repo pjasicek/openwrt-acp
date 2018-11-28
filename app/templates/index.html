@@ -35,6 +35,7 @@
             <th scope="col">Up</th>
 
             <th scope="col" data->Comment</th>
+            <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -54,8 +55,8 @@
                 <th scope="row" id={{ openwrt.name }} name="name">
                     <a name="openwrt_detail"
                        {% if openwrt.ping == False %}disabled{% else %}href="{{ openwrt_detail }}"{% endif %}
-                       {% if openwrt.ping == False %}class="btn btn-primary"
-                       {% else %}class="btn btn-primary"{% endif %}>{{ openwrt.name }}</a>
+                       {% if openwrt.ping == False %}class="btn btn-sm btn-primary"
+                       {% else %}class="btn btn-sm btn-primary"{% endif %}>{{ openwrt.name }}</a>
                 </th>
                 <td name="ip_address"><a href="{{ openwrt_url }}" target='_blank'>{{ openwrt.ip_address }}</a></td>
                 <td name="ping" class="text-center">{{ render_tick_cross(openwrt.ping) }}</td>
@@ -72,6 +73,15 @@
                           data-title="Enter comment" data-value="" style="cursor: pointer">
                         <div style="height:100%;width:100%;"><strong>{{ comment }}</strong></div>
                     </span>
+                </td>
+                <td name="actions" class="col-md-2">
+                    <button name="update_btn" wrt="{{ openwrt.name }}" class="btn btn-sm btn-primary" href="/openwrts/update/{{ openwrt.name }}"
+                    {% if openwrt.ping == False %}disabled{% endif %} >
+                        <i class="glyphicon glyphicon-upload"></i> Update
+                    </button>
+                    <a name="delete_btn" class="btn btn-sm btn-danger" href="/openwrts/delete/{{ openwrt.name }}">
+                        <i class="glyphicon glyphicon-trash"></i> Delete
+                    </a>
                 </td>
             </tr>
         {% endfor %}
@@ -128,7 +138,7 @@
     #}
     <div class="page-header" />
     <div>
-        <button id="refresh" class="btn btn-primary btn-lg" type="button">Refresh</button>
+        <button  id="refresh" class="btn btn-primary btn-lg" type="button">Refresh</button>
         <span id="refresh_status" style="display:none">
             <img style="padding-left: 10px" src="/static/img/loading_32.gif" alt="Loading"
                  style="vertical-align:middle"/>
@@ -240,13 +250,15 @@
             if (data.ping == false) {
                 row.children('th[name=name]').find('a').attr('disabled', true);
                 row.children('th[name=name]').find('a').removeAttr('href');
-                row.children('th[name=name]').find('a').attr('class', 'btn btn-primary')
+                row.children('th[name=name]').find('a').attr('class', 'btn btn-sm btn-primary');
+                row.children('td[name=actions]').find('button[name=update_btn]').attr('disabled', true);
             }
             else {
                 link = location.protocol + '//' + document.domain + ':' + location.port + '/openwrts/' + data.name;
                 row.children('th[name=name]').find('a').attr('disabled', false);
                 row.children('th[name=name]').find('a').attr('href', link);
-                row.children('th[name=name]').find('a').attr('class', 'btn btn-primary')
+                row.children('th[name=name]').find('a').attr('class', 'btn btn-sm btn-primary');
+                row.children('td[name=actions]').find('button[name=update_btn]').attr('disabled', false);
             }
 
             row.children('td[name=hostname]').html(data.hostname);
@@ -255,6 +267,27 @@
             row.children('td[name=clients]').html(data.clients);
             row.children('td[name=down]').html(data.down);
             row.children('td[name=up]').html(data.up);
+        });
+
+        $('button[name=update_btn]').on('click', function () {
+            //console.log("clicked: ", $(this).getAttribute('href'));
+            var update_endpoint = $(this)[0].getAttribute('href');
+            var name = $(this)[0].getAttribute('wrt');
+            console.log(name);
+            toastr.info('Configuration update started.', name);
+
+            $.ajax({
+                type: 'POST',
+                url: '/openwrt/update/' + name,
+                success: function (data, textStatus, xhr) {
+                    toastr.success('Configuration update finished.', name);
+                },
+                error: function (data) {
+                    toastr.error('Configuration update failed.', name);
+                },
+                complete: function (data) {
+                },
+            });
         });
 
         $('#refresh').click(function () {
