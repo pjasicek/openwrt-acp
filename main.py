@@ -7,6 +7,7 @@ from app.models import User, Role, Openwrt, GlobalState, Network, WirelessNetwor
 from app.main import openwrt_api
 from time import sleep
 from threading import Thread
+import gevent
 
 import json
 from pprint import pprint
@@ -91,8 +92,7 @@ def background_refresh_job(app):
         if openwrt_api.test_and_set_refresh() is True:
             print('Spawning refresh_all_openwrts job ...')
             # Refresh OpenWRTs in background
-            thr = Thread(target=openwrt_api.refresh_all_openwrts, args=[app])
-            thr.start()
+            gevent.spawn(openwrt_api.refresh_all_openwrts, app)
 
 
 refresh_thread = Thread(target=background_refresh_job, args=[app])

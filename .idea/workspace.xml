@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1111fbb4-4a99-4e48-b77c-da1b826550ee" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main/openwrt_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/openwrt_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/openwrts.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/openwrts.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,7 +19,7 @@
     <SUITE FILE_PATH="coverage/flask_test$Flask__app_py_.coverage" NAME="Flask (app/main/app.py) Coverage Results" MODIFIED="1538745369107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/flask_template$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1538941230912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/rsu_acp$Flask__main_.coverage" NAME="Flask (main) Coverage Results" MODIFIED="1540283597055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/openwrt_acp$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1543518909295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/openwrt_acp$Flask__main_py_.coverage" NAME="Flask (main.py) Coverage Results" MODIFIED="1543524603639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -142,7 +138,7 @@
           <entry key="dummy" value="55" />
           <entry key="html" value="5842" />
           <entry key="json" value="761" />
-          <entry key="py" value="15054" />
+          <entry key="py" value="15138" />
           <entry key="txt" value="476" />
         </counts>
       </usages-collector>
@@ -152,7 +148,7 @@
           <entry key="HTML" value="5842" />
           <entry key="JSON" value="761" />
           <entry key="PLAIN_TEXT" value="531" />
-          <entry key="Python" value="15054" />
+          <entry key="Python" value="15138" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -262,11 +258,11 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/app/main/views.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1384">
-                  <caret line="272" column="5" selection-start-line="272" selection-start-column="5" selection-end-line="272" selection-end-column="5" />
+                <state relative-caret-position="410">
+                  <caret line="327" column="61" selection-start-line="327" selection-start-column="61" selection-end-line="327" selection-end-column="61" />
                   <folding>
                     <element signature="e#0#109#0" expanded="true" />
                   </folding>
@@ -283,11 +279,11 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="570">
-                  <caret line="234" column="58" selection-start-line="234" selection-start-column="58" selection-end-line="234" selection-end-column="58" />
+                <state relative-caret-position="-2181">
+                  <caret line="81" column="37" lean-forward="true" selection-start-line="81" selection-start-column="37" selection-end-line="81" selection-end-column="37" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -325,8 +321,11 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/main.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="17">
-                  <caret line="1" selection-start-line="1" selection-end-line="2" selection-end-column="18" />
+                <state relative-caret-position="452">
+                  <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
+                  <folding>
+                    <element signature="e#0#9#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -334,8 +333,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/__init__.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="323">
-                  <caret line="19" column="95" selection-start-line="19" selection-start-column="95" selection-end-line="19" selection-end-column="95" />
+                <state relative-caret-position="459">
+                  <caret line="27" column="37" lean-forward="true" selection-start-line="27" selection-start-column="37" selection-end-line="27" selection-end-column="37" />
                 </state>
               </provider>
             </entry>
@@ -479,7 +478,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>query.filter</find>
       <find>\@main\.route\(\'\/wireless\/new\'\, methods\=\[\'GET\'\, \'POST\'\]\)\n\@login_required\ndef new_network\(\)\:\n    form \= AddNetworkForm\(\)\n    print\(\'asdf1\'\)\n    if form\.is_submitted\(\)\:\n        if form\.validate\(\)\:\n            network \= Network\(name\=form\.name\.data\,\n                              network_addr\=form\.network\.data\,\n                              gateway\=form\.gateway\.data\,\n                              vlan\=int\(form\.vlan\.data\)\n                              \)\n            db\.session\.add\(network\)\n            db\.session\.commit\(\)\n            return redirect\(url_for\(\'main\.network\'\)\)\n        else\:\n            flash_errors\(form\)\n    return render_template\(\'network_detail\.html\'\, form\=form\, new\=True\)\n\n\n\@main\.route\(\'\/wireless\/edit\/\&lt;string\:wireless_name\&gt;\'\, methods\=\[\'GET\'\, \'POST\'\]\)\n\@login_required\ndef edit_network\(network_name\)\:\n    network \= Network\.query\.filter\(Network\.name \=\= network_name\)\.first\(\)\n    if network is None\:\n        return render_template\(\'404\.html\'\)\n    else\:\n        form \= AddNetworkForm\(\)\n        form\.is_edit \= True\n        if request\.method \=\= \'GET\'\:\n            form\.name\.data \= network_name\n            form\.network\.data \= network\.network_addr\n            form\.gateway\.data \= network\.gateway\n            form\.vlan\.data \= network\.vlan\n        else\:\n            if form\.is_submitted\(\)\:\n                if form\.validate\(\)\:\n                    network\.name \= form\.name\.data\n                    network\.network_addr \= form\.network\.data\n                    network\.gateway \= form\.gateway\.data\n                    network\.vlan \= form\.vlan\.data\n                    db\.session\.commit\(\)\n                    return redirect\(url_for\(\'main\.network\'\)\)\n                else\:\n                    flash_errors\(form\)\n        return render_template\(\'network_detail\.html\'\, form\=form\, new\=False\, network\=network\)</find>
       <find>if form.is_submitted():</find>
       <find>delete</find>
@@ -509,6 +507,7 @@
       <find>start_</find>
       <find>refresh_all</find>
       <find>test_ping</find>
+      <find>print</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\pjasi\Desktop\flask-template</dir>
@@ -570,13 +569,13 @@
         <option value="$PROJECT_DIR$/app/models.py" />
         <option value="$PROJECT_DIR$/manage.py" />
         <option value="$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/flask_socketio/cli.py" />
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/data/openwrts.json" />
         <option value="$PROJECT_DIR$/app/templates/index.html" />
-        <option value="$PROJECT_DIR$/app/__init__.py" />
-        <option value="$PROJECT_DIR$/app/main/views.py" />
         <option value="$PROJECT_DIR$/app/main/gping.py" />
         <option value="$PROJECT_DIR$/app/main/openwrt_api.py" />
+        <option value="$PROJECT_DIR$/app/__init__.py" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/app/main/views.py" />
       </list>
     </option>
   </component>
@@ -1004,14 +1003,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22615263" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3281372" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49960256" visible="true" weight="0.27669525" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49960256" visible="true" weight="0.27669525" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1019,7 +1017,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="9" weight="0.32969603" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="10" sideWeight="0.50039744" side_tool="true" visible="true" weight="0.27669525" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50039744" side_tool="true" visible="true" weight="0.27669525" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3289166" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3289166" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -1256,20 +1254,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" selection-start-line="1" selection-end-line="2" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="95" selection-start-line="19" selection-start-column="95" selection-end-line="19" selection-end-column="95" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/flask-test/venv/Lib/site-packages/flask_socketio/cli.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -1395,22 +1379,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/main/views.py">
+    <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1384">
-          <caret line="272" column="5" selection-start-line="272" selection-start-column="5" selection-end-line="272" selection-end-column="5" />
+        <state relative-caret-position="-2181">
+          <caret line="81" column="37" lean-forward="true" selection-start-line="81" selection-start-column="37" selection-end-line="81" selection-end-column="37" />
           <folding>
-            <element signature="e#0#109#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/main/openwrt_api.py">
+    <entry file="file://$PROJECT_DIR$/app/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="234" column="58" selection-start-line="234" selection-start-column="58" selection-end-line="234" selection-end-column="58" />
+        <state relative-caret-position="459">
+          <caret line="27" column="37" lean-forward="true" selection-start-line="27" selection-start-column="37" selection-end-line="27" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="452">
+          <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/main/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="327" column="61" selection-start-line="327" selection-start-column="61" selection-end-line="327" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#109#0" expanded="true" />
           </folding>
         </state>
       </provider>

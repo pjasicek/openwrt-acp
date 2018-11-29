@@ -68,7 +68,6 @@ class OpenwrtApi():
     def test_ping(self, ip_address):
         cmd = "ping -n 2 -w 2000 " + ip_address + " > nul" if system_name().lower() == "windows" \
             else "ping -c 2 -W 2 " + ip_address + " >/dev/null"
-        print('cmd' + cmd)
         p = gevent.subprocess.Popen(cmd, stdout=gevent.subprocess.PIPE, stderr=gevent.subprocess.PIPE, shell=True)
         p.wait(10.0)
         return p.returncode == 0
@@ -202,7 +201,6 @@ class OpenwrtApi():
             for openwrt in openwrts:
                 try:
                     self.refresh_status.current_openwrt = openwrt.name
-                    print('emit')
                     socketio.emit('refresh_status', self.refresh_status.toJSON(), namespace='/ws')
 
                     # If ping fails dont try anything else

@@ -1,21 +1,16 @@
 from flask import render_template, session, redirect, url_for, current_app, request, jsonify, Response, flash
 from .. import db
 from ..models import User, Openwrt, GlobalState, Network, WirelessNetwork
-from ..email import send_email
 from . import main, openwrt_api
 from flask_login import login_required, current_user
 from pprint import pprint
 from sqlalchemy import func
-from time import sleep, time
-from threading import Thread
 import main as main_root
 from .. import socketio
 from flask_socketio import emit
 import json
 from datetime import datetime
 from .forms import AddNetworkForm, AddWirelessForm
-import ipaddress
-from threading import Lock
 import gevent
 
 
@@ -262,16 +257,8 @@ def refresh_all():
     if openwrt_api.test_and_set_refresh() is False:
         return jsonify(success=False, message="Refresh already in progress"), 409
 
-    # Refresh OpenWRTs in background
-    #thr = Thread(target=openwrt_api.refresh_all_openwrts, args=[main_root.app])
-    #thr.daemon = True
-    # print('-')
-    #thr.start()
-    # print('y')
-
     gevent.spawn(openwrt_api.refresh_all_openwrts, main_root.app)
-    #socketio.start_background_task(openwrt_api.refresh_all_openwrts, main_root.app)
-    print('y')
+
     return jsonify(success=True)
 
 
@@ -306,13 +293,12 @@ def ws_update_openwrt(msg):
     if openwrt is None:
         return render_template('404.html')
 
-    print('before lock')
     if not openwrt.update_lock.acquire(blocking=False):
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "Update is already in progress."},
                       namespace='/ws')
         return
-    print('got lock')
+
     socketio.emit('update_status', {"status_type": "started", "openwrt_name": openwrt_name}, namespace='/ws')
 
     # Delete all non-default networks
@@ -339,7 +325,7 @@ def ws_update_openwrt(msg):
         if network_info[".type"] == "interface":
             networks_to_delete.append(key)
 
-    print(networks_to_delete)
+    print("will delete networks: " + str(networks_to_delete))
 
     for nw in networks_to_delete:
         print('deleting network: ' + nw)
@@ -378,7 +364,7 @@ def ws_update_openwrt(msg):
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
                       namespace='/ws')
         return
-    print(all_wireless)
+    print("will delete wireless: " + str(all_wireless))
 
     # First delete all wireless interfaces on the device
     wifis_to_delete = []
