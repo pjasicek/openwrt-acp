@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from . import db, login_manager
 from flask_jsontools import JsonSerializableBase
 from sqlalchemy.ext.declarative import declarative_base
+from threading import Lock
 
 Base = declarative_base(cls=(JsonSerializableBase,))
 
@@ -24,8 +25,10 @@ class Openwrt(db.Model, Base):
     comment = db.Column(db.String(256), default="")
 
     # These data are for OpenWRT update
-    update_in_progress = db.Column
+    update_in_progress = db.Column(db.Boolean, default=False)
     auth_token = db.Column(db.String(32), default="none")
+
+    update_lock = Lock()
 
     def __repr__(self):
         return '<OpenWRT %r>' % self.name

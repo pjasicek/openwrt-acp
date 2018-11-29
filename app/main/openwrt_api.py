@@ -14,6 +14,7 @@ import paramiko
 from paramiko import SSHClient, SSHConfig
 import requests
 import config
+import gevent
 
 
 class RefreshStatus():
@@ -65,8 +66,12 @@ class OpenwrtApi():
     ######################### Controller -> OpenWRT common methods
 
     def test_ping(self, ip_address):
-        parameters = "-n 2 -w 2000 > nul" if system_name().lower() == "windows" else "-c 2 -W 2 >/dev/null"
-        return system_call("ping " + parameters + " " + ip_address) == 0
+        cmd = "ping -n 2 -w 2000 " + ip_address + " > nul" if system_name().lower() == "windows" \
+            else "ping -c 2 -W 2 " + ip_address + " >/dev/null"
+        print('cmd' + cmd)
+        p = gevent.subprocess.Popen(cmd, stdout=gevent.subprocess.PIPE, stderr=gevent.subprocess.PIPE, shell=True)
+        p.wait(10.0)
+        return p.returncode == 0
 
     def test_luci(self, ip_address, username, password):
         ret = False
@@ -197,12 +202,14 @@ class OpenwrtApi():
             for openwrt in openwrts:
                 try:
                     self.refresh_status.current_openwrt = openwrt.name
+                    print('emit')
                     socketio.emit('refresh_status', self.refresh_status.toJSON(), namespace='/ws')
 
                     # If ping fails dont try anything else
                     openwrt.ping = self.test_ping(openwrt.ip_address)
                     if openwrt.ping == False:
                         # Invalidate everything
+                        openwrt.ping = False
                         openwrt.luci = False
                         openwrt.ssh = False
                         openwrt.hostname = '-'

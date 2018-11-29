@@ -15,6 +15,8 @@ import json
 from datetime import datetime
 from .forms import AddNetworkForm, AddWirelessForm
 import ipaddress
+from threading import Lock
+import gevent
 
 
 def flash_errors(form):
@@ -256,13 +258,20 @@ def openwrt_comment():
 @main.route('/openwrt/refresh_all', methods=['POST'])
 @login_required
 def refresh_all():
+    print('x')
     if openwrt_api.test_and_set_refresh() is False:
         return jsonify(success=False, message="Refresh already in progress"), 409
 
     # Refresh OpenWRTs in background
-    thr = Thread(target=openwrt_api.refresh_all_openwrts, args=[main_root.app])
-    thr.start()
+    #thr = Thread(target=openwrt_api.refresh_all_openwrts, args=[main_root.app])
+    #thr.daemon = True
+    # print('-')
+    #thr.start()
+    # print('y')
 
+    gevent.spawn(openwrt_api.refresh_all_openwrts, main_root.app)
+    #socketio.start_background_task(openwrt_api.refresh_all_openwrts, main_root.app)
+    print('y')
     return jsonify(success=True)
 
 
@@ -276,17 +285,46 @@ def refresh_status():
 @login_required
 def update_openwrt(openwrt_name):
     print('openwrt update')
+    return jsonify(success=True)
+
+
+@socketio.on('connect', namespace='/ws')
+@login_required
+def test_connect():
+    socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
+
+@socketio.on('update_openwrt', namespace='/ws')
+@login_required
+def ws_update_openwrt(msg):
+    openwrt_name = msg['openwrt_name']
+    if openwrt_name is None:
+        print('not ok')
+
+    print('openwrt update')
     openwrt = Openwrt.query.filter(func.lower(Openwrt.name) == func.lower(openwrt_name)).first()
     print('openwrt: ' + openwrt_name)
     if openwrt is None:
         return render_template('404.html')
+
+    print('before lock')
+    if not openwrt.update_lock.acquire(blocking=False):
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": openwrt_name, "reason": "Update is already in progress."},
+                      namespace='/ws')
+        return
+    print('got lock')
+    socketio.emit('update_status', {"status_type": "started", "openwrt_name": openwrt_name}, namespace='/ws')
 
     # Delete all non-default networks
     # - all anonymous interfaces
     # - all switch vlans > 2
     all_network = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["network"]})
     if all_network is "-":
-        return jsonify(success=False), 400
+        openwrt.update_lock.release()
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
+                      namespace='/ws')
+        return
     print(all_network)
 
     network_whitelist = ["wan_dev", "lan_dev", "wan6", "globals", "loopback", "lan", "wan"]
@@ -332,14 +370,14 @@ def update_openwrt(openwrt_name):
                                                        "type": "bridge",
                                                        "ifname": "eth0." + str(nw.vlan)}]})
 
-    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["network"]})
-    if ret is not "-":
-        print('network changes commited')
-
     # Wireless
     all_wireless = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["wireless"]})
     if all_wireless is "-":
-        return jsonify(success=False), 400
+        openwrt.update_lock.release()
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
+                      namespace='/ws')
+        return
     print(all_wireless)
 
     # First delete all wireless interfaces on the device
@@ -378,16 +416,21 @@ def update_openwrt(openwrt_name):
             openwrt_api.call_luci(openwrt, 'uci',
                                   {'method': 'set', 'params': ["wireless", wifi.ssid, "key", wifi.password]})
 
+    # ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "apply", "params": ["network", "wireless"]})
+    # if ret is not "-":
+    #     print('wireless changes commited')
+
+    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["network"]})
+    if ret is not "-":
+        print('network changes commited')
+
     ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["wireless"]})
     if ret is not "-":
         print('wireless changes commited')
 
-    return jsonify(success=True)
+    openwrt.update_lock.release()
+    socketio.emit('update_status', {"status_type": "finished", "openwrt_name": msg['openwrt_name']}, namespace='/ws')
+    return
 
-
-@socketio.on('connect', namespace='/ws')
-@login_required
-def test_connect():
-    socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
 
 ##################################

@@ -1,4 +1,6 @@
 import os
+from gevent import monkey
+monkey.patch_all()
 from flask_migrate import Migrate
 from app import create_app, db, socketio
 from app.models import User, Role, Openwrt, GlobalState, Network, WirelessNetwork

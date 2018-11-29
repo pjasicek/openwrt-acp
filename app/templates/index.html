@@ -225,6 +225,7 @@
         socket.on('openwrt_refreshed', function (data) {
             // data = openwrt db model json
             // we will recreate the row
+            console.log('openwrt_refreshed ws msg');
             if (data == null || data.name == null) {
                 return;
             }
@@ -268,15 +269,31 @@
             row.children('td[name=down]').html(data.down);
             row.children('td[name=up]').html(data.up);
         });
+        socket.on('update_status', function (data) {
+            if (data.status_type == "started") {
+                toastr.info('Configuration update started.', data.openwrt_name);
+            }
+            else if (data.status_type == "error") {
+                toastr.error(data.reason, data.openwrt_name);
+            }
+            else if (data.status_type == "finished") {
+                toastr.success('Configuration update finished.', data.openwrt_name);
+            }
+            else {
+                toastr.error('Unknown update status msg');
+            }
+        });
 
         $('button[name=update_btn]').on('click', function () {
             //console.log("clicked: ", $(this).getAttribute('href'));
             var update_endpoint = $(this)[0].getAttribute('href');
             var name = $(this)[0].getAttribute('wrt');
             console.log(name);
-            toastr.info('Configuration update started.', name);
+            //toastr.info('Configuration update started.', name);
 
-            $.ajax({
+            socket.emit('update_openwrt', {"openwrt_name": name})
+
+            /*$.ajax({
                 type: 'POST',
                 url: '/openwrt/update/' + name,
                 success: function (data, textStatus, xhr) {
@@ -287,7 +304,7 @@
                 },
                 complete: function (data) {
                 },
-            });
+            });*/
         });
 
         $('#refresh').click(function () {
