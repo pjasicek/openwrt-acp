@@ -79,6 +79,8 @@ class AddWirelessForm(FlaskForm):
     #widget=PasswordInput(hide_value=False)
     password = StringField('Password')
     network = SelectField(label='Network', validators=[DataRequired()])
+    hide_ssid = BooleanField('Hide SSID', default=False)
+    isolate_clients = BooleanField('Isolate Clients', default=False)
     # is_vlan = BooleanField('Use VLAN', default=True)
     # vlan = StringField('VLAN', render_kw={"placeholder": "2-4096"})
 

@@ -27,7 +27,9 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
+    app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     bootstrap.init_app(app)
+
     mail.init_app(app)
     moment.init_app(app)
     db.init_app(app)

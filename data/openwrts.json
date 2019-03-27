@@ -5,26 +5,6 @@
   "openwrts": [
     {
       "name": "OpenWRT1",
-      "ip_address": "192.168.78.102"
-    },
-    {
-      "name": "OpenWRT4",
-      "ip_address": "192.168.78.112"
-    },
-    {
-      "name": "OpenWRT13",
-      "ip_address": "192.168.78.122"
-    },
-    {
-      "name": "OpenWRT12",
-      "ip_address": "192.168.78.132"
-    },
-    {
-      "name": "OpenWRT11",
-      "ip_address": "192.168.78.142"
-    },
-    {
-      "name": "OpenWRT2",
       "ip_address": "192.168.1.1"
     }
   ]

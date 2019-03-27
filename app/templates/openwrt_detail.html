@@ -13,6 +13,40 @@
 {% block page_content %}
 
     <style type="text/css">
+        .spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height:100px;
+            width:100px;
+            margin:0px auto;
+            -webkit-animation: rotation .6s infinite linear;
+            -moz-animation: rotation .6s infinite linear;
+            -o-animation: rotation .6s infinite linear;
+            animation: rotation .6s infinite linear;
+            border-left:6px solid rgba(0,174,239,.15);
+            border-right:6px solid rgba(0,174,239,.15);
+            border-bottom:6px solid rgba(0,174,239,.15);
+            border-top:6px solid rgba(0,174,239,.8);
+            border-radius:100%;
+        }
+
+        @-webkit-keyframes rotation {
+            from {-webkit-transform: rotate(0deg);}
+            to {-webkit-transform: rotate(359deg);}
+        }
+        @-moz-keyframes rotation {
+            from {-moz-transform: rotate(0deg);}
+            to {-moz-transform: rotate(359deg);}
+        }
+        @-o-keyframes rotation {
+            from {-o-transform: rotate(0deg);}
+            to {-o-transform: rotate(359deg);}
+        }
+        @keyframes rotation {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(359deg);}
+        }
     </style>
 
     <div class="page-header">
@@ -21,8 +55,8 @@
 
     <ul class="nav nav-tabs">
         <li id="device_menuitem" class="active"><a data-toggle="tab" href="#device">Device</a></li>
-        <li><a data-toggle="tab" href="#network">Network</a></li>
-        <li><a data-toggle="tab" href="#wireless">Wireless</a></li>
+        <li><a id="network_tab" data-toggle="tab" href="#network">Network</a></li>
+        <li><a id="wireless_tab" data-toggle="tab" href="#wireless">Wireless</a></li>
         <li><a id="syslog_tab" data-toggle="tab" href="#syslog">Syslog</a></li>
         <li><a id="dmesg_tab" data-toggle="tab" href="#dmesg">Kernel Log</a></li>
         {#  <li class="dropdown">
@@ -85,9 +119,12 @@
         </div>
         <div id="network" class="tab-pane">
             <h3><strong>Network</strong></h3>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="35">{{ ifconfig }}</textarea>
         </div>
         <div id="wireless" class="tab-pane">
             <h3><strong>Wireless</strong></h3>
+            {#  <div class="spinner"></div> #}
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="35">{{ iwinfo }}</textarea>
         </div>
         <div id="syslog" class="tab-pane">
             <h3><strong>Syslog</strong></h3>
@@ -106,6 +143,11 @@
 
     <script>
         $(document).ready(function () {
+            wirelessShown = false;
+            networkShown = false;
+            syslogShown = false;
+            dmesgShown = false;
+
             $('#device_menuitem').attr('class', 'active');
 
             $('#syslog_tab').on('click', function () {

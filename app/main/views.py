@@ -12,6 +12,7 @@ import json
 from datetime import datetime
 from .forms import AddNetworkForm, AddWirelessForm
 import gevent
+from threading import Lock
 
 
 def flash_errors(form):
@@ -30,6 +31,7 @@ def index():
     openwrts = Openwrt.query.all()
     for openwrt in openwrts:
         print(openwrt)
+        print(openwrt.channel)
     return render_template('index.html', openwrts=openwrts)
 
 
@@ -153,6 +155,8 @@ def edit_wireless(wireless_name):
             form.security.data = wireless.security_type
             form.password.data = wireless.password
             form.network.data = wireless.network
+            form.hide_ssid.data = wireless.hide_ssid
+            form.isolate_clients.data = wireless.isolate_clients
             # form.is_vlan.data = wireless.vlan > 1 and wireless.vlan < 4097
             # form.vlan.data = wireless.vlan
         else:
@@ -166,6 +170,8 @@ def edit_wireless(wireless_name):
                     else:
                         wireless.password = form.password.data
                     wireless.network = form.network.data
+                    wireless.hide_ssid = form.hide_ssid.data
+                    wireless.isolate_clients = form.isolate_clients.data
                     # wireless.is_vlan = form.is_vlan.data
                     # if form.is_vlan.data == True:
                     #     wireless.vlan = form.vlan.data
@@ -193,10 +199,87 @@ def delete_wireless(wireless_name):
 ################## STATISTICS ##################
 
 
-@main.route('/statistics', methods=['GET', 'POST'])
+@main.route('/clients', methods=['GET', 'POST'])
 @login_required
-def statistics():
-    return render_template('statistics.html')
+def clients():
+    openwrts = Openwrt.query.all()
+
+    # ssid: ap_mgmt
+    # client_mac:
+    # client_ip:
+    # signal:
+    # noise:
+    # tx_rate:
+    # tx_packets:
+    # rx_rate:
+    # rx_packets:
+    assoc_list = []
+    for openwrt in openwrts:
+        # if openwrt.ping is False:
+        #    continue
+
+        wireless_devices = []
+        all_devices = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "net.devices", "params": []})
+
+        for device in all_devices:
+            if device.startswith("wlan"):
+                wireless_devices.append(device)
+
+        print(wireless_devices)
+
+        arptable_raw = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
+            "cat /proc/net/arp | tail -n +2 | awk '{print $1,$4}'"]})
+        arptable_lines = arptable_raw.split('\n')
+        arptable_dict = {}
+        # arp_line: '192.168.1.147 ac:af:b9:5f:4a:5e\n
+        for arp_line in arptable_lines:
+            if not arp_line:
+                break
+
+            arp_line = arp_line.upper()
+            arp_pair = arp_line.split(' ')
+            arptable_dict[arp_pair[1]] = arp_pair[0]
+
+        #print(arptable_dict)
+
+        for wireless_device in wireless_devices:
+            wireless_info = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "wifi.getiwinfo",
+                                                                         "params": [wireless_device]})
+
+            stations = wireless_info['assoclist']
+            #print(wireless_info)
+            #print(stations)
+            if not stations:
+                #print('empty')
+                continue
+
+            for client_mac in stations:
+                client_info = {}
+                client_assoc_info = stations[client_mac]
+
+                client_info['ssid'] = wireless_info['ssid']
+                client_info['client_mac'] = client_mac
+                if client_mac in arptable_dict:
+                    client_info['client_ip'] = arptable_dict[client_mac]
+                else:
+                    client_info['client_ip'] = 'Unknown'
+                client_info['signal'] = client_assoc_info['signal']
+                client_info['noise'] = client_assoc_info['noise']
+                tx_rate_mbit = client_assoc_info['tx_rate'] / 1024.0
+                client_info['tx_rate'] = f'{tx_rate_mbit:.1f}'
+                client_info['tx_packets'] = client_assoc_info['tx_packets']
+                rx_rate_mbit = client_assoc_info['rx_rate'] / 1024.0
+                client_info['rx_rate'] = f'{rx_rate_mbit:.1f}'
+                client_info['rx_packets'] = client_assoc_info['rx_packets']
+
+                assoc_list.append(client_info)
+
+
+                #print(assoc[0]['tx_ht'])
+
+    print(assoc_list)
+
+    return render_template('clients.html', assoc_list=assoc_list)
 
 
 @main.route('/openwrts/<string:openwrt_name>', methods=['GET', 'POST'])
@@ -207,24 +290,30 @@ def openwrts(openwrt_name):
     if openwrt is None:
         return render_template('404.html')
     else:
-        boardinfoJson = json.loads(openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+        boardinfoJson = json.loads(openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
             "ubus call system board"]}))
         print(boardinfoJson)
 
-        infoJson = json.loads(openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+        infoJson = json.loads(openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
             "ubus call system info"]}))
         print(infoJson)
 
-        loadavg = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "exec", "params": [
+        loadavg = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
             "cat /proc/loadavg"]})
 
-        syslog = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "syslog", "params": []})
-        dmesg = openwrt_api.get_luci_result(openwrt, 'sys', {"id": 1, "method": "dmesg", "params": []})
+        ifconfig = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
+            "ifconfig"]})
+
+        iwinfo = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
+            "iwinfo"]})
+
+        syslog = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "syslog", "params": []})
+        dmesg = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "dmesg", "params": []})
 
         return render_template('openwrt_detail.html', openwrt=openwrt, boardinfoJson=boardinfoJson,
                                infoJson=infoJson, uptime=openwrt_api.seconds_to_timeformat(
                 infoJson['uptime']), localtime=datetime.utcfromtimestamp(infoJson['localtime']), loadavg=loadavg,
-                               syslog=syslog, dmesg=dmesg)
+                               syslog=syslog, dmesg=dmesg, ifconfig=ifconfig, iwinfo=iwinfo)
 
 
 @main.route('/img/<img>')
@@ -280,6 +369,58 @@ def update_openwrt(openwrt_name):
 def test_connect():
     socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
 
+
+glob_update_lock = Lock()
+
+
+@socketio.on('update_channel', namespace='/ws')
+@login_required
+def ws_update_openwrt(msg):
+    openwrt_name = msg['openwrt_name']
+    channel = msg['channel']
+
+    if openwrt_name is None:
+        print('not ok')
+
+    openwrt = Openwrt.query.filter(func.lower(Openwrt.name) == func.lower(openwrt_name)).first()
+    if openwrt is None:
+        return render_template('404.html')
+
+    glob_update_lock.acquire()
+
+    if openwrt.update_in_progress:
+        glob_update_lock.release()
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": openwrt_name,
+                       "reason": "Cannot update channel, another update is running."},
+                      namespace='/ws')
+        return
+
+    openwrt.update_in_progress = True
+    db.session.commit()
+
+    glob_update_lock.release()
+
+    openwrt_api.call_luci(openwrt.ip_address, 'uci',
+                          {'method': 'set', 'params': ["wireless", "radio0", "channel", channel]})
+
+    ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"method": "commit", "params": ["wireless"]})
+    if ret is not "-":
+        socketio.emit('update_status', {"status_type": "finished", "openwrt_name": openwrt_name},
+                      namespace='/ws')
+        openwrt.channel = msg['channel']
+    else:
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": openwrt_name,
+                       "reason": "Channel update failed."},
+                      namespace='/ws')
+
+    openwrt.update_in_progress = False
+    db.session.commit()
+
+    return
+
+
 @socketio.on('update_openwrt', namespace='/ws')
 @login_required
 def ws_update_openwrt(msg):
@@ -293,23 +434,41 @@ def ws_update_openwrt(msg):
     if openwrt is None:
         return render_template('404.html')
 
-    if not openwrt.update_lock.acquire(blocking=False):
+    # if not openwrt.update_lock.acquire(blocking=False):
+    #     socketio.emit('update_status',
+    #                   {"status_type": "error", "openwrt_name": openwrt_name, "reason": "Update is already in progress."},
+    #                   namespace='/ws')
+    #     return
+
+    # this prevents race conditions, database "test-and-set" is not really atomic
+    glob_update_lock.acquire()
+
+    if openwrt.update_in_progress:
+        glob_update_lock.release()
         socketio.emit('update_status',
-                      {"status_type": "error", "openwrt_name": openwrt_name, "reason": "Update is already in progress."},
+                      {"status_type": "error", "openwrt_name": openwrt_name,
+                       "reason": "Update is already in progress."},
                       namespace='/ws')
         return
+
+    openwrt.update_in_progress = True
+    db.session.commit()
+
+    glob_update_lock.release()
 
     socketio.emit('update_status', {"status_type": "started", "openwrt_name": openwrt_name}, namespace='/ws')
 
     # Delete all non-default networks
     # - all anonymous interfaces
     # - all switch vlans > 2
-    all_network = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["network"]})
+    all_network = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"id": 1, "method": "get_all", "params": ["network"]})
     if all_network is "-":
-        openwrt.update_lock.release()
+        # openwrt.update_lock.release()
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
                       namespace='/ws')
+        openwrt.update_in_progress = False
+        db.session.commit()
         return
     print(all_network)
 
@@ -329,7 +488,7 @@ def ws_update_openwrt(msg):
 
     for nw in networks_to_delete:
         print('deleting network: ' + nw)
-        ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "delete", "params": ["network", nw]})
+        ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"method": "delete", "params": ["network", nw]})
         if ret is not "-":
             print('deleted: ' + nw)
         else:
@@ -339,7 +498,7 @@ def ws_update_openwrt(msg):
     conf_networks = Network.query.all()
     for nw in conf_networks:
         # 1) Create VLAN on OpenWrt switch
-        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+        ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci',
                                           {"method": "section",
                                            "params": ["network", "switch_vlan", "switch_vlan_" + str(nw.vlan),
                                                       {"device": "switch0",
@@ -349,7 +508,7 @@ def ws_update_openwrt(msg):
         curr_vlan_idx += 1
 
         # 2) Create Network
-        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+        ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci',
                                           {"method": "section",
                                            "params": ["network", "interface", nw.name,
                                                       {"proto": "none",
@@ -357,13 +516,14 @@ def ws_update_openwrt(msg):
                                                        "ifname": "eth0." + str(nw.vlan)}]})
 
     # Wireless
-    all_wireless = openwrt_api.get_luci_result(openwrt, 'uci', {"id": 1, "method": "get_all", "params": ["wireless"]})
+    all_wireless = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"id": 1, "method": "get_all", "params": ["wireless"]})
     if all_wireless is "-":
-        openwrt.update_lock.release()
+        # openwrt.update_lock.release()
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
                       namespace='/ws')
-        return
+        openwrt.update_in_progress = False
+        db.session.commit()
     print("will delete wireless: " + str(all_wireless))
 
     # First delete all wireless interfaces on the device
@@ -374,7 +534,7 @@ def ws_update_openwrt(msg):
 
     for wifi in wifis_to_delete:
         print('deleting wifi: ' + wifi)
-        ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "delete", "params": ["wireless", wifi]})
+        ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"method": "delete", "params": ["wireless", wifi]})
         if ret is not "-":
             print('deleted: ' + wifi)
         else:
@@ -386,7 +546,7 @@ def ws_update_openwrt(msg):
         if not wifi.enabled:
             continue
 
-        ret = openwrt_api.get_luci_result(openwrt, 'uci',
+        ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci',
                                           {"method": "section",
                                            "params": ["wireless", "wifi-iface", wifi.ssid,
                                                       {"device": "radio0",
@@ -394,29 +554,37 @@ def ws_update_openwrt(msg):
                                                        "ssid": wifi.ssid,
                                                        "network": wifi.network}]})
         if wifi.security_type == "Open":
-            openwrt_api.call_luci(openwrt, 'uci',
+            openwrt_api.call_luci(openwrt.ip_address, 'uci',
                                   {'method': 'set', 'params': ["wireless", wifi.ssid, "encryption", "none"]})
         else:
-            openwrt_api.call_luci(openwrt, 'uci',
+            openwrt_api.call_luci(openwrt.ip_address, 'uci',
                                   {'method': 'set', 'params': ["wireless", wifi.ssid, "encryption", "psk2"]})
-            openwrt_api.call_luci(openwrt, 'uci',
+            openwrt_api.call_luci(openwrt.ip_address, 'uci',
                                   {'method': 'set', 'params': ["wireless", wifi.ssid, "key", wifi.password]})
+
+        openwrt_api.call_luci(openwrt.ip_address, 'uci',
+                              {'method': 'set', 'params': ["wireless", wifi.ssid, "hidden", wifi.hide_ssid * 1]})
+        openwrt_api.call_luci(openwrt.ip_address, 'uci',
+                              {'method': 'set', 'params': ["wireless", wifi.ssid, "isolate", wifi.isolate_clients * 1]})
 
     # ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "apply", "params": ["network", "wireless"]})
     # if ret is not "-":
     #     print('wireless changes commited')
 
-    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["network"]})
+    ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"method": "commit", "params": ["network"]})
     if ret is not "-":
         print('network changes commited')
 
-    ret = openwrt_api.get_luci_result(openwrt, 'uci', {"method": "commit", "params": ["wireless"]})
+    ret = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"method": "commit", "params": ["wireless"]})
     if ret is not "-":
         print('wireless changes commited')
 
-    openwrt.update_lock.release()
     socketio.emit('update_status', {"status_type": "finished", "openwrt_name": msg['openwrt_name']}, namespace='/ws')
-    return
 
+    # openwrt.update_lock.release()
+    openwrt.update_in_progress = False
+    db.session.commit()
+
+    return
 
 ##################################

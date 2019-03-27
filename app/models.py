@@ -23,6 +23,7 @@ class Openwrt(db.Model, Base):
     down = db.Column(db.String(64), default="-")
     up = db.Column(db.String(64), default="-")
     comment = db.Column(db.String(256), default="")
+    channel = db.Column(db.String(32), default="-")
 
     # These data are for OpenWRT update
     update_in_progress = db.Column(db.Boolean, default=False)
@@ -61,9 +62,25 @@ class WirelessNetwork(db.Model, Base):
     network = db.Column(db.String(128), default="")
     is_vlan = db.Column(db.Boolean, default=True)
     vlan = db.Column(db.Integer, default=0)
+    hide_ssid = db.Column(db.Boolean, default=False)
+    isolate_clients = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<WirelessNetwork %r>' % self.ssid
+
+
+class WirelessClients(db.Model, Base):
+    __tablename__ = 'wireless_clients'
+    id = db.Column(db.Integer, primary_key=True)
+    ssid = db.Column(db.String(128), default="")
+    ip_address = db.Column(db.String(128), default="")
+    mac_address = db.Column(db.String(128), default="")
+    signal_noise = db.Column(db.String(128), default="")
+    rxtx_rate = db.Column(db.String(128), default="")
+
+
+    def __repr__(self):
+        return '<WirelessClients %r>' % self.id
 
 
 # Sorry

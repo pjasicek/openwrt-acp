@@ -63,6 +63,18 @@
                     {{ form.network(class_="form-control") }}
                 </div>
             </div>
+            <div class="form-group">
+                {{ form.hide_ssid.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.hide_ssid() }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.isolate_clients.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.isolate_clients() }}
+                </div>
+            </div>
         {#
             <div class="form-group">
                 {{ form.is_vlan.label(class_="col-sm-3 control-label") }}

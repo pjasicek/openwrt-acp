@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}OpenWRT ACP - Overview{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h3><strong>Associated Clients</strong></h3>
+    </div>
+    <div style="width: 70%"/>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="head">
+        <tr>
+            <th scope="col">SSID</th>
+            <th scope="col">Client IP Address</th>
+            <th scope="col">Client MAC Address</th>
+            <th scope="col">Signal / Noise</th>
+            <th scope="col">TX</th>
+            <th scope="col">RX</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for client in assoc_list %}
+            <tr name="{{ client.client_mac }}">
+                <td scope="row" class="col-md-1"><a href="/wireless/edit/{{ client.ssid }}">{{ client.ssid }}</a>
+                </td>
+                <td scope="row" class="col-md-1">
+                    {% if client.client_ip != "Unknown" %}
+                        <a href="http://{{ client.client_ip }}" target='_blank'>{{ client.client_ip }}</a>
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </td>
+                <td scope="row" class="col-md-1">{{ client.client_mac }}</td>
+                <td scope="row" class="col-md-1">{{ client.signal }} / {{ client.noise }} dBm</td>
+                <td scope="row" class="col-md-2">{{ client.tx_rate }} MBit/s, {{ client.tx_packets }} Packets</td>
+                <td scope="row" class="col-md-2">{{ client.rx_rate }} MBit/s, {{ client.rx_packets }} Packets</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}
