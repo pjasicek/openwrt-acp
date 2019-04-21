@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from .. import db
-from ..models import Openwrt
+from ..models import Openwrt, OpenwrtComments
 from flask import jsonify
 from threading import Lock
 from platform import system as system_name
@@ -18,6 +18,7 @@ import gevent
 import socket
 import ipaddress
 import gevent
+from flask import render_template
 
 
 class RefreshStatus():
@@ -53,6 +54,8 @@ class OpenwrtApi():
         self.ssh_password = ''
         self.ssh_keyfile = ''
         self.openwrt_token_cache = {}
+        self.active_openwrts = {}
+        self.openwrt_network = ''
 
         self.intervals = (
             ('d', 86400),  # 60 * 60 * 24
@@ -66,6 +69,7 @@ class OpenwrtApi():
         self.ssh_username = app.config['OPENWRT_USERNAME']
         self.ssh_password = app.config['OPENWRT_PASSWORD']
         self.ssh_keyfile = app.config['OPENWRT_SSH_KEYFILE']
+        self.openwrt_network = app.config['OPENWRT_NETWORK']
 
     ######################### Controller -> OpenWRT common methods
 
@@ -79,7 +83,7 @@ class OpenwrtApi():
             s.connect((ip_address, 80))
             ok = True
         except Exception as e:
-            print(e)
+            ok = False
         finally:
             s.close()
 
@@ -148,7 +152,10 @@ class OpenwrtApi():
     def call_luci(self, openwrt_ip, lib, json_data, auth_retry=True, timeout=5):
         # print('call_luci: ' + openwrt.ip_address + ', ' + lib + ', ' + str(json_data))
 
-        endpoint = "http://" + openwrt_ip + "/cgi-bin/luci/rpc/" + lib + "?auth=" + self.openwrt_token_cache[openwrt_ip]
+        auth_token = ''
+        if openwrt_ip in self.openwrt_token_cache:
+            auth_token = self.openwrt_token_cache[openwrt_ip]
+        endpoint = "http://" + openwrt_ip + "/cgi-bin/luci/rpc/" + lib + "?auth=" + auth_token
 
         try:
             req = requests.post(endpoint, json=json_data, timeout=timeout)
@@ -245,21 +252,31 @@ class OpenwrtApi():
             self.is_refreshing = True
 
             # Discover all of them first
-            openwrt_online_list = self.scan_mgmt_network('192.168.1.0/24')
+            openwrt_online_list = self.scan_mgmt_network(self.openwrt_network)
 
             print(openwrt_online_list)
 
             openwrts = Openwrt.query.all()
 
+            curr_active_openwrts = {}
             self.refresh_status.total_openwrts = len(openwrts)
             self.refresh_status.updated_openwrts = 0
-            for openwrt in openwrts:
+
+            # Clear from database
+            db.session.query(Openwrt).delete()
+
+            for openwrt_ip in openwrt_online_list:
+                openwrt = Openwrt()
+                openwrt.name = "OpenWRT" + openwrt_ip[openwrt_ip.rfind('.') + 1:]
+                openwrt.ip_address = openwrt_ip
+
                 try:
                     self.refresh_status.current_openwrt = openwrt.name
                     socketio.emit('refresh_status', self.refresh_status.toJSON(), namespace='/ws')
 
                     # If ping fails dont try anything else
                     openwrt.ping = self.test_ping(openwrt.ip_address)
+
                     if openwrt.ping == False:
                         # Invalidate everything
                         openwrt.ping = False
@@ -269,8 +286,6 @@ class OpenwrtApi():
                         openwrt.firmware = '-'
                         openwrt.uptime = '-'
                         openwrt.clients = '-'
-                        openwrt.down = '-'
-                        openwrt.up = '-'
                         openwrt.channel = 'auto'
                     else:
                         openwrt.luci = self.test_luci(openwrt.ip_address, app.config['OPENWRT_USERNAME'],
@@ -294,19 +309,66 @@ class OpenwrtApi():
                                                                {"id": 1, "method": "get",
                                                                 "params": ["wireless", "radio0", "channel"]})
 
+                        openwrt.eth0_mac = self.get_luci_result(openwrt.ip_address, 'sys',
+                                                                {"id": 1, "method": "exec", "params": [
+                                                                    "cat /sys/class/net/eth0/address"]})
+
+                        # Get associated stations
+                        num_clients = 0
+                        wireless_devices = []
+                        all_devices = self.get_luci_result(openwrt.ip_address, 'sys',
+                                                                  {"id": 1, "method": "net.devices", "params": []})
+                        for device in all_devices:
+                            if device.startswith("wlan"):
+                                wireless_devices.append(device)
+
+                        for wireless_device in wireless_devices:
+                            wireless_info = self.get_luci_result(openwrt.ip_address, 'sys',
+                                                                        {"id": 1, "method": "wifi.getiwinfo",
+                                                                         "params": [wireless_device]})
+                            stations = wireless_info['assoclist']
+                            if not stations:
+                                continue
+                            else:
+                                for client_mac in stations:
+                                    num_clients += 1
+
+                        openwrt.clients = num_clients
+
+                        # Match comment to stored eth0_mac:comment pair if applicable
+                        openwrt_comment = OpenwrtComments.query.filter_by(id=openwrt.eth0_mac).first()
+                        if openwrt_comment is not None:
+                            openwrt.comment = openwrt_comment.comment
+
+                    db.session.add(openwrt)
+
                     db.session.commit()
 
                     self.refresh_status.updated_openwrts += 1
                     self.refresh_status.timestamp = time.time()
 
-                    socketio.emit('openwrt_refreshed', openwrt.__json__(), namespace='/ws')
+                    curr_active_openwrts[openwrt.ip_address] = openwrt.__json__()
+
+                    print(openwrt.__json__())
+
+                    # socketio.emit('openwrt_refreshed', openwrt.__json__(), namespace='/ws')
 
                 except Exception as e:
                     print('Exception:')
                     print(e)
+
+                    db.session.add(openwrt)
+                    db.session.commit()
+
                     continue
 
+            self.active_openwrts = curr_active_openwrts
             socketio.emit('refresh_status', self.refresh_status.toJSON(), namespace='/ws')
+
+            #openwrts = Openwrt.query.all()
+            #table = render_template('openwrt_overview_table.html', openwrts=openwrts)
+            #socketio.emit('openwrts_updated', {"table": table}, namespace='/ws')
+            socketio.emit('openwrts_updated', {"status":"ok"}, namespace='/ws')
 
             self.is_refreshing = False
 

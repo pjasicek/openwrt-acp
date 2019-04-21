@@ -24,16 +24,20 @@ class Openwrt(db.Model, Base):
     up = db.Column(db.String(64), default="-")
     comment = db.Column(db.String(256), default="")
     channel = db.Column(db.String(32), default="-")
+    eth0_mac = db.Column(db.String(64), default="")
 
     # These data are for OpenWRT update
     update_in_progress = db.Column(db.Boolean, default=False)
-    auth_token = db.Column(db.String(32), default="none")
 
     update_lock = Lock()
 
     def __repr__(self):
         return '<OpenWRT %r>' % self.name
 
+class OpenwrtComments(db.Model, Base):
+    __tablename__ = 'openwrt_comments'
+    id = db.Column(db.String(64), primary_key=True) # eth0 MAC address
+    comment = db.Column(db.String(256), default="")
 
 class Network(db.Model, Base):
     __tablename__ = 'networks'

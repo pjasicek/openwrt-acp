@@ -1,6 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, request, jsonify, Response, flash
 from .. import db
-from ..models import User, Openwrt, GlobalState, Network, WirelessNetwork
+from ..models import User, Openwrt, GlobalState, Network, WirelessNetwork, OpenwrtComments
 from . import main, openwrt_api
 from flask_login import login_required, current_user
 from pprint import pprint
@@ -32,7 +32,7 @@ def index():
     for openwrt in openwrts:
         print(openwrt)
         print(openwrt.channel)
-    return render_template('index.html', openwrts=openwrts)
+    return render_template('index.html', openwrts=openwrts, openwrt_subnet=openwrt_api.openwrt_network)
 
 
 ################## NETWORKS ##################
@@ -215,8 +215,8 @@ def clients():
     # rx_packets:
     assoc_list = []
     for openwrt in openwrts:
-        # if openwrt.ping is False:
-        #    continue
+        if openwrt.luci is False:
+            continue
 
         wireless_devices = []
         all_devices = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "net.devices", "params": []})
@@ -329,10 +329,18 @@ def static_img(img):
 def openwrt_comment():
     content = request.json
     pprint(content)
-    openwrt = Openwrt.query.filter_by(name=content["openwrt_name"]).first();
+    openwrt = Openwrt.query.filter_by(name=content["openwrt_name"]).first()
     if openwrt is not None:
         openwrt.comment = content["comment"]
-        print('comment: ' + openwrt.comment)
+        #print('comment: ' + openwrt.comment)
+
+        openwrt_comment = OpenwrtComments.query.filter_by(id=openwrt.eth0_mac).first()
+        if openwrt_comment is None:
+            new_comment = OpenwrtComments(id=openwrt.eth0_mac, comment = openwrt.comment)
+            db.session.add(new_comment)
+        else:
+            openwrt_comment.comment = openwrt.comment
+
         db.session.commit()
         return jsonify(success=True)
 
@@ -376,6 +384,10 @@ glob_update_lock = Lock()
 @socketio.on('update_channel', namespace='/ws')
 @login_required
 def ws_update_openwrt(msg):
+    openwrts = Openwrt.query.all()
+    a = render_template('openwrt_overview_table.html', openwrts=openwrts)
+    print(a)
+
     openwrt_name = msg['openwrt_name']
     channel = msg['channel']
 

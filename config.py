@@ -5,15 +5,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in \
-                   ['true', 'on', '1']
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>'
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     LOGIN_USERNAME = os.environ.get('LOGIN_USERNAME') or 'admin'
@@ -22,6 +13,8 @@ class Config:
     OPENWRT_USERNAME = os.environ.get('OPENWRT_USERNAME') or 'root'
     OPENWRT_PASSWORD = os.environ.get('OPENWRT_PASSWORD') or 'root'
     OPENWRT_SSH_KEYFILE = os.environ.get('OPENWRT_SSH_KEYFILE') or os.path.abspath('data/openwrt_key.priv')
+
+    OPENWRT_NETWORK = os.environ.get('OPENWRT_NETWORK') or '192.168.1.0/24'
 
     @staticmethod
     def init_app(app):

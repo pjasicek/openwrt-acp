@@ -1,3 +1,11 @@
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load config
+env_path = Path('.') / 'config.env'
+load_dotenv(dotenv_path=env_path)
+
+
 import os
 from gevent import monkey
 monkey.patch_all()
@@ -8,9 +16,8 @@ from app.main import openwrt_api
 from time import sleep
 from threading import Thread
 import gevent
-
 import json
-from pprint import pprint
+
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')

@@ -3,9 +3,6 @@
   "password": "root",
   "key": "openwrt_key.priv",
   "openwrts": [
-    {
-      "name": "OpenWRT1",
-      "ip_address": "192.168.1.1"
-    }
+
   ]
 }
