@@ -89,11 +89,13 @@ with app.app_context():
     db.session.commit()
 
 
+scan_interval = int(app.config['OPENWRT_SCAN_INTERVAL_SECONDS'])
+print(scan_interval)
+
 # Background refresh thread
 def background_refresh_job(app):
     while True:
-        # Every 5 minutes
-        sleep(5 * 60)
+        sleep(scan_interval)
 
         # Get lock
         if openwrt_api.test_and_set_refresh() is True:
@@ -102,9 +104,10 @@ def background_refresh_job(app):
             gevent.spawn(openwrt_api.refresh_all_openwrts, app, glob_update_lock)
 
 
-refresh_thread = Thread(target=background_refresh_job, args=[app])
-refresh_thread.setDaemon(True)
-refresh_thread.start()
+if scan_interval is not 0:
+    refresh_thread = Thread(target=background_refresh_job, args=[app])
+    refresh_thread.setDaemon(True)
+    refresh_thread.start()
 
 migrate = Migrate(app, db)
 

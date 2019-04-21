@@ -16,6 +16,8 @@ class Config:
 
     OPENWRT_NETWORK = os.environ.get('OPENWRT_NETWORK') or '192.168.1.0/24'
 
+    OPENWRT_SCAN_INTERVAL_SECONDS = os.environ.get('OPENWRT_SCAN_INTERVAL_SECONDS') or '600'
+
     @staticmethod
     def init_app(app):
         pass
