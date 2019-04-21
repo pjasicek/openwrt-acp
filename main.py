@@ -5,9 +5,9 @@ from pathlib import Path
 env_path = Path('.') / 'config.env'
 load_dotenv(dotenv_path=env_path)
 
-
 import os
 from gevent import monkey
+
 monkey.patch_all()
 from flask_migrate import Migrate
 from app import create_app, db, socketio
@@ -17,10 +17,10 @@ from time import sleep
 from threading import Thread
 import gevent
 import json
-
-
+from threading import Lock
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+glob_update_lock = Lock()
 
 # Import environment variables
 if os.path.exists('.env'):
@@ -78,12 +78,12 @@ with app.app_context():
 
     for ssidJson in ssidsJson["ssids"]:
         ssid = WirelessNetwork(ssid=ssidJson["ssid"],
-                          enabled=ssidJson["enabled"],
-                          security_type=ssidJson["security_type"],
-                          password=ssidJson["password"],
-                          is_vlan=ssidJson["is_vlan"],
-                          vlan=ssidJson["vlan"],
-                          network=ssidJson["network"])
+                               enabled=ssidJson["enabled"],
+                               security_type=ssidJson["security_type"],
+                               password=ssidJson["password"],
+                               is_vlan=ssidJson["is_vlan"],
+                               vlan=ssidJson["vlan"],
+                               network=ssidJson["network"])
         db.session.add(ssid)
 
     db.session.commit()
@@ -99,7 +99,7 @@ def background_refresh_job(app):
         if openwrt_api.test_and_set_refresh() is True:
             print('Spawning refresh_all_openwrts job ...')
             # Refresh OpenWRTs in background
-            gevent.spawn(openwrt_api.refresh_all_openwrts, app)
+            gevent.spawn(openwrt_api.refresh_all_openwrts, app, glob_update_lock)
 
 
 refresh_thread = Thread(target=background_refresh_job, args=[app])

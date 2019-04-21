@@ -24,7 +24,7 @@
 
     <div class="page-header" />
     <div>
-        <button  id="refresh" class="btn btn-primary btn-lg" type="button">Refresh</button>
+        <button  id="refresh" class="btn btn-primary btn-lg" type="button">Scan Network</button>
         <span id="refresh_status" style="display:none">
             <img style="padding-left: 10px" src="/static/img/loading_32.gif" alt="Loading"
                  style="vertical-align:middle"/>
@@ -60,16 +60,16 @@
             $('.progress-bar-label').text(json_data.updated_openwrts + '/' + json_data.total_openwrts);
 
             if (json_data.total_openwrts == null || json_data.total_openwrts == 0) {
-                $('#refresh_text').html('Refresh status is unknown');
+                $('#refresh_text').html('Scan status is unknown');
                 $('#progress_bar').removeClass('active');
             }
             else if (json_data.updated_openwrts == json_data.total_openwrts) {
-                $('#refresh_text').html('Refresh finished &#10004; (' + json_data.timestamp + ')');
+                $('#refresh_text').html('Scan finished &#10004; (' + json_data.timestamp + ')');
                 // ?
                 //$('#progress_bar').removeClass('active');
             }
             else {
-                $('#refresh_text').html('Refresh in progress (' + json_data.current_openwrt + ') ...');
+                $('#refresh_text').html('Scan in progress (' + json_data.current_openwrt + ') ...');
                 $('#progress_bar').addClass('active');
             }
         };

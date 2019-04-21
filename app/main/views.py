@@ -12,7 +12,6 @@ import json
 from datetime import datetime
 from .forms import AddNetworkForm, AddWirelessForm
 import gevent
-from threading import Lock
 
 
 def flash_errors(form):
@@ -350,11 +349,14 @@ def openwrt_comment():
 @main.route('/openwrt/refresh_all', methods=['POST'])
 @login_required
 def refresh_all():
-    print('x')
-    if openwrt_api.test_and_set_refresh() is False:
+    if not main_root.glob_update_lock.acquire(blocking=0):
+        socketio.emit('update_status',
+                      {"status_type": "error", "openwrt_name": "",
+                       "reason": "Cannot re-scan network - other OpenWrt update is in progress."},
+                        namespace='/ws')
         return jsonify(success=False, message="Refresh already in progress"), 409
 
-    gevent.spawn(openwrt_api.refresh_all_openwrts, main_root.app)
+    gevent.spawn(openwrt_api.refresh_all_openwrts, main_root.app, main_root.glob_update_lock)
 
     return jsonify(success=True)
 
@@ -378,16 +380,9 @@ def test_connect():
     socketio.emit('refresh_status', openwrt_api.refresh_status.toJSON(), namespace='/ws')
 
 
-glob_update_lock = Lock()
-
-
 @socketio.on('update_channel', namespace='/ws')
 @login_required
 def ws_update_openwrt(msg):
-    openwrts = Openwrt.query.all()
-    a = render_template('openwrt_overview_table.html', openwrts=openwrts)
-    print(a)
-
     openwrt_name = msg['openwrt_name']
     channel = msg['channel']
 
@@ -398,10 +393,10 @@ def ws_update_openwrt(msg):
     if openwrt is None:
         return render_template('404.html')
 
-    glob_update_lock.acquire()
+    #glob_update_lock.acquire()
 
-    if openwrt.update_in_progress:
-        glob_update_lock.release()
+    if not main_root.glob_update_lock.acquire(blocking=0):
+        main_root.glob_update_lock.release()
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name,
                        "reason": "Cannot update channel, another update is running."},
@@ -411,7 +406,7 @@ def ws_update_openwrt(msg):
     openwrt.update_in_progress = True
     db.session.commit()
 
-    glob_update_lock.release()
+    main_root.glob_update_lock.release()
 
     openwrt_api.call_luci(openwrt.ip_address, 'uci',
                           {'method': 'set', 'params': ["wireless", "radio0", "channel", channel]})
@@ -453,10 +448,10 @@ def ws_update_openwrt(msg):
     #     return
 
     # this prevents race conditions, database "test-and-set" is not really atomic
-    glob_update_lock.acquire()
+    #glob_update_lock.acquire()
 
-    if openwrt.update_in_progress:
-        glob_update_lock.release()
+    if not main_root.glob_update_lock.acquire(blocking=0):
+        #glob_update_lock.release()
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name,
                        "reason": "Update is already in progress."},
@@ -465,8 +460,6 @@ def ws_update_openwrt(msg):
 
     openwrt.update_in_progress = True
     db.session.commit()
-
-    glob_update_lock.release()
 
     socketio.emit('update_status', {"status_type": "started", "openwrt_name": openwrt_name}, namespace='/ws')
 
@@ -481,6 +474,7 @@ def ws_update_openwrt(msg):
                       namespace='/ws')
         openwrt.update_in_progress = False
         db.session.commit()
+        main_root.glob_update_lock.release()
         return
     print(all_network)
 
@@ -596,6 +590,7 @@ def ws_update_openwrt(msg):
     # openwrt.update_lock.release()
     openwrt.update_in_progress = False
     db.session.commit()
+    main_root.glob_update_lock.release()
 
     return
 

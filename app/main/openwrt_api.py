@@ -247,7 +247,7 @@ class OpenwrtApi():
 
         return openwrt_list
 
-    def refresh_all_openwrts(self, app):
+    def refresh_all_openwrts(self, app, lock):
         with app.app_context():
             self.is_refreshing = True
 
@@ -259,7 +259,7 @@ class OpenwrtApi():
             openwrts = Openwrt.query.all()
 
             curr_active_openwrts = {}
-            self.refresh_status.total_openwrts = len(openwrts)
+            self.refresh_status.total_openwrts = len(openwrt_online_list)
             self.refresh_status.updated_openwrts = 0
 
             # Clear from database
@@ -370,6 +370,7 @@ class OpenwrtApi():
             #socketio.emit('openwrts_updated', {"table": table}, namespace='/ws')
             socketio.emit('openwrts_updated', {"status":"ok"}, namespace='/ws')
 
+            lock.release()
             self.is_refreshing = False
 
     def refresh_openwrt(self, openwrt_name):
