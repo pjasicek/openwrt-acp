@@ -9,7 +9,7 @@ OpenWrt ACP is a web tool which is used for centralized configuration of multipl
 ## Installation and running
 
 ```
-git clone https://github.com/pjasicek/openwrt-acp
+$ git clone https://github.com/pjasicek/openwrt-acp
 $ cd openwrt-acp
 $ pip install -r requirements.txt   # You can setup python virtual environment if you do not want these packages system-wide
 $ FLASK_APP=main.py           # on Windows: $ set FLASK_APP=main.py
@@ -25,5 +25,6 @@ See config.env file for configuration (users/passwords, openwrt ap subnet)
 
 ![alt tag](https://i.postimg.cc/HL59gXnG/screenshot-156.png)
 ![alt tag](https://i.postimg.cc/jSnzHPzW/screenshot-157.png)
+![alt tag](https://i.postimg.cc/nhWwqrkd/screenshot-160.png)
 ![alt tag](https://i.postimg.cc/7LvSmhVK/screenshot-158.png)
 ![alt tag](https://i.postimg.cc/MTqVJLgR/screenshot-159.png)
