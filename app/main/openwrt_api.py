@@ -3,25 +3,21 @@ import sys
 import time
 from .. import db
 from ..models import Openwrt, OpenwrtComments
-from flask import jsonify
 from threading import Lock
 from platform import system as system_name
 from .. import socketio
 import json
 from datetime import datetime
-from os import system as system_call
 import paramiko
 from paramiko import SSHClient, SSHConfig
 import requests
-import config
-import gevent
 import socket
 import ipaddress
 import gevent
-from flask import render_template
 
 
 class RefreshStatus():
+    """Contains snapshot of last network scan status"""
     total_openwrts = 0
     updated_openwrts = 0
     current_openwrt = ""
@@ -34,18 +30,11 @@ class RefreshStatus():
         return json
 
 
-class RefrehStrategy():
-    TRY_EVERYTHING = 1
-    SSH_ONLY = 2
-
-
 class OpenwrtApi():
-    def __init__(self, refresh_strategy=RefrehStrategy.TRY_EVERYTHING):
-        self.is_refreshing = False
+    """Class used for communcation with OpenWrt via JSON-RPC"""
+
+    def __init__(self):
         self.refresh_status = RefreshStatus()
-        self.refresh_lock = Lock()
-        self.assoc_clients_update_lock = Lock()
-        self.is_updating_assoc_clients = False
         self.is_windows = system_name().lower() == "windows"
         # TODO: change later to read from config
         self.luci_username = ''
@@ -74,6 +63,8 @@ class OpenwrtApi():
     ######################### Controller -> OpenWRT common methods
 
     def test_ping(self, ip_address):
+        """Tests if port 80 is reachable on given @ip_address. Returns True if port is reachable"""
+
         # Test if http port is open - more reliable and faster than ping
         # - if the port is not open, luci is not working => we dont need to try anything else
         s = socket.socket()
@@ -92,24 +83,25 @@ class OpenwrtApi():
 
         return ok
 
-        # cmd = "ping -n 2 -w 2000 " + ip_address + " > nul" if system_name().lower() == "windows" \
-        #    else "ping -c 2 -W 2 " + ip_address + " >/dev/null"
-        # p = gevent.subprocess.Popen(cmd, stdout=gevent.subprocess.PIPE, stderr=gevent.subprocess.PIPE, shell=True)
-        # p.wait(10.0)
-        # return p.returncode == 0
-
     def test_luci(self, ip_address, username, password):
+        """
+        Tests if LuCI interface is available
+
+        Arguments:
+        ip_address: OpenWrt IP address
+        username: LuCI login username (should be same as SSH)
+        password: LuCI login password (should be same as SSH)
+
+        Returns:
+            True if luci can be accessed, false otherwise
+        """
+
         ret = False
-        # endpoint = "http://" + ip_address + "/cgi-bin/luci/rpc/sys"
-        # payload = {"id": "1", "method": "hostname", "params": []}
         endpoint = "http://" + ip_address + "/cgi-bin/luci/rpc/auth"
         payload = {"id": "1", "method": "login", "params": [username, password]}
 
-        print('endpoint:' + endpoint)
         try:
             r = requests.post(endpoint, json=payload, timeout=5)
-            # print(r.text)
-            # print(r.status_code)
             response_json = json.loads(r.text)
             if r.status_code == 200 and response_json["result"] is not None:
                 ret = True
@@ -120,6 +112,18 @@ class OpenwrtApi():
         return ret
 
     def test_ssh(self, ip_address, username, password, key):
+        """
+        Tests if SSH connection is available
+
+        Arguments:
+        ip_address: IP address where SSH server runs
+        username: SSH username
+        password: SSH password
+        key: SSH private key file (preferred method of authentication)
+
+        Returns:
+            True if SSH can be connected to
+        """
         try:
             ssh = SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -131,6 +135,15 @@ class OpenwrtApi():
             return False
 
     def get_luci_auth_token(self, openwrt_ip):
+        """
+        Gets authentication token from LuCI for further protected requests
+
+        Arguments:
+        ip_address: OpenWrt IP address
+
+        Returns:
+            Authentication token (string) on success, None on failure
+        """
         endpoint = "http://" + openwrt_ip + "/cgi-bin/luci/rpc/auth"
         payload = {"id": "1234", "method": "login", "params": [self.luci_username, self.luci_password]}
 
@@ -146,10 +159,21 @@ class OpenwrtApi():
 
         return None
 
-    # @openwrt: db model
-    # @lib: uci, fs, sys, ipkg, auth
-    # @json_data: in json, sent to openwrt
     def call_luci(self, openwrt_ip, lib, json_data, auth_retry=True, timeout=5):
+        """
+        Sends HTTP POST request to LuCI conforming to JSON-RPC API
+
+        Arguments:
+        openwrt_ip: OpenWrt IP address
+        lib: JSON-RPC library - 'uci', 'sys', 'fs' or 'ipkg'
+        json_data: JSON data to be passed as requuest payload
+        auth_retry: Retry on first failure caused by unauthorized access (try to reauthenticate)
+        timeout: Request max timeout
+
+        Returns:
+            JSON response on success, None on failure
+        """
+
         # print('call_luci: ' + openwrt.ip_address + ', ' + lib + ', ' + str(json_data))
 
         auth_token = ''
@@ -184,11 +208,9 @@ class OpenwrtApi():
 
         return None
 
-    def get_hostname(self, auth_retry=True):
-
-        return ""
-
     def get_luci_result(self, openwrt_ip, lib, json_data):
+        """Simple wrapper over call_luci - directly returns result JSON or '-' on failure"""
+
         ret = self.call_luci(openwrt_ip, lib, json_data)
         if ret is None:
             return "-"
@@ -198,6 +220,16 @@ class OpenwrtApi():
         return ret["result"]
 
     def seconds_to_timeformat(self, seconds, granularity=4):
+        """
+        Formats number of seconds to pretty time string
+
+        Arguments:
+        seconds: Number of seconds
+        granularity: Granularity of the output (if granularity=2 then string contains only minutes and seconds)
+
+        Returns:
+            Time string
+        """
         result = []
 
         for name, count in self.intervals:
@@ -211,28 +243,33 @@ class OpenwrtApi():
 
     ######################### OpenWRTs status refresh
 
-    def test_and_set_refresh(self):
-        with self.refresh_lock:
-            if self.is_refreshing is True:
-                return False
-            else:
-                self.is_refreshing = True
-                return True
-
-    def test_and_set_assoc_clients(self):
-        with self.assoc_clients_update_lock:
-            if self.is_updating_assoc_clients is True:
-                return False
-            else:
-                self.is_updating_assoc_clients = True
-                return True
-
     def test_openwrt_ping_async(self, ip_address, openwrt_list):
+        """
+        Asynchronously tests if openwrt port 80 is reachable on the network
+
+        Arguments:
+        ip_address: openwrt IP address
+        openwrt_list: Where to store the result
+
+        Returns:
+            Nothing
+        """
+
         ping_ok = self.test_ping(ip_address)
         if ping_ok is True:
             openwrt_list.append(ip_address)
 
     def scan_mgmt_network(self, range):
+        """
+        Scans availability of all openwrts on given network
+
+        Arguments:
+        range: Network subnet strubg, e.g. '192.168.1.0/24'
+
+        Returns:
+            List of reachable openwrt ip addresses on given network segment
+        """
+
         openwrt_list = []
         pool = gevent.pool.Pool(255)
         for ip in ipaddress.IPv4Network(range):
@@ -248,6 +285,18 @@ class OpenwrtApi():
         return openwrt_list
 
     def refresh_all_openwrts(self, app, lock):
+        """
+        Scans the openwrt subnet and refreshes status of all openwrts in it.
+        This method drops Openwrt database table and fills again with latest values.
+
+        Arguments:
+        app: Flask application context
+        lock: Lock object for OpenWrt access synchronization - released when update is done
+
+        Returns:
+            Nothing
+        """
+
         with app.app_context():
             self.is_refreshing = True
 
@@ -255,8 +304,6 @@ class OpenwrtApi():
             openwrt_online_list = self.scan_mgmt_network(self.openwrt_network)
 
             print(openwrt_online_list)
-
-            openwrts = Openwrt.query.all()
 
             curr_active_openwrts = {}
             self.refresh_status.total_openwrts = len(openwrt_online_list)
@@ -317,15 +364,15 @@ class OpenwrtApi():
                         num_clients = 0
                         wireless_devices = []
                         all_devices = self.get_luci_result(openwrt.ip_address, 'sys',
-                                                                  {"id": 1, "method": "net.devices", "params": []})
+                                                           {"id": 1, "method": "net.devices", "params": []})
                         for device in all_devices:
                             if device.startswith("wlan"):
                                 wireless_devices.append(device)
 
                         for wireless_device in wireless_devices:
                             wireless_info = self.get_luci_result(openwrt.ip_address, 'sys',
-                                                                        {"id": 1, "method": "wifi.getiwinfo",
-                                                                         "params": [wireless_device]})
+                                                                 {"id": 1, "method": "wifi.getiwinfo",
+                                                                  "params": [wireless_device]})
                             stations = wireless_info['assoclist']
                             if not stations:
                                 continue
@@ -349,8 +396,7 @@ class OpenwrtApi():
 
                     curr_active_openwrts[openwrt.ip_address] = openwrt.__json__()
 
-                    print(openwrt.__json__())
-
+                    # print(openwrt.__json__())
                     # socketio.emit('openwrt_refreshed', openwrt.__json__(), namespace='/ws')
 
                 except Exception as e:
@@ -365,18 +411,9 @@ class OpenwrtApi():
             self.active_openwrts = curr_active_openwrts
             socketio.emit('refresh_status', self.refresh_status.toJSON(), namespace='/ws')
 
-            #openwrts = Openwrt.query.all()
-            #table = render_template('openwrt_overview_table.html', openwrts=openwrts)
-            #socketio.emit('openwrts_updated', {"table": table}, namespace='/ws')
-            socketio.emit('openwrts_updated', {"status":"ok"}, namespace='/ws')
+            # openwrts = Openwrt.query.all()
+            # table = render_template('openwrt_overview_table.html', openwrts=openwrts)
+            # socketio.emit('openwrts_updated', {"table": table}, namespace='/ws')
+            socketio.emit('openwrts_updated', {"status": "ok"}, namespace='/ws')
 
             lock.release()
-            self.is_refreshing = False
-
-    def refresh_openwrt(self, openwrt_name):
-        self.refresh_status.total_openwrts = 1
-        self.refresh_status.updated_openwrts = 0
-        for x in range(0, self.refresh_status.total_openwrts):
-            time.sleep(0.5)
-            self.refresh_status.updated_openwrts += 1
-            self.refresh_status.timestamp = time.time()

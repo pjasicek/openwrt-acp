@@ -11,7 +11,7 @@ from gevent import monkey
 monkey.patch_all()
 from flask_migrate import Migrate
 from app import create_app, db, socketio
-from app.models import User, Role, Openwrt, GlobalState, Network, WirelessNetwork
+from app.models import User, Openwrt, Network, WirelessNetwork
 from app.main import openwrt_api
 from time import sleep
 from threading import Thread
@@ -19,37 +19,19 @@ import gevent
 import json
 from threading import Lock
 
+
+# Create and initialize flask application and its components
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 glob_update_lock = Lock()
 
-# Import environment variables
-if os.path.exists('.env'):
-    print('Importing environment from .env...')
-    for line in open('.env'):
-        var = line.strip().split('=')
-        if len(var) == 2:
-            os.environ[var[0]] = var[1]
 
-# Create default DB entries
-# with app.app_context():
-#     db.create_all()
-#     user = User.query.filter_by(username=app.config['LOGIN_USERNAME']).first()
-#     if user is None:
-#         login_user = User(username=app.config['LOGIN_USERNAME'], password=app.config['LOGIN_PASSWORD'])
-#         db.session.add(login_user)
-#     else:
-#         user.password = app.config['LOGIN_PASSWORD']
-#
-#     db.session.commit()
+# Create default database configurations
 with app.app_context():
     db.drop_all()
     db.create_all()
 
     login_user = User(username=app.config['LOGIN_USERNAME'], password=app.config['LOGIN_PASSWORD'])
     db.session.add(login_user)
-
-    global_state = GlobalState()
-    db.session.add(global_state)
 
     with open('data/openwrts.json') as openwrtJsonFile:
         openwrtsJson = json.load(openwrtJsonFile)
@@ -90,15 +72,15 @@ with app.app_context():
 
 
 scan_interval = int(app.config['OPENWRT_SCAN_INTERVAL_SECONDS'])
-print(scan_interval)
 
-# Background refresh thread
 def background_refresh_job(app):
+    """Spawns OpenWrt network scan at configured intervals"""
+
     while True:
         sleep(scan_interval)
 
         # Get lock
-        if openwrt_api.test_and_set_refresh() is True:
+        if glob_update_lock.acquire(blocking=0):
             print('Spawning refresh_all_openwrts job ...')
             # Refresh OpenWRTs in background
             gevent.spawn(openwrt_api.refresh_all_openwrts, app, glob_update_lock)
@@ -114,7 +96,7 @@ migrate = Migrate(app, db)
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User, Role=Role)
+    return dict(db=db, User=User)
 
 
 @app.cli.command()

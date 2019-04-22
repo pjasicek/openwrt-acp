@@ -20,11 +20,83 @@
         <h3><strong>Access Points ({{ openwrt_subnet }})</strong></h3>
     </div>
 
-    {% include "openwrt_overview_table.html" %}
+    <table id="openwrts_table" class="table table-striped table-hover table-bordered">
+        <thead class="head">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">IP Address</th>
+            <th scope="col">Ping</th>
+            <th scope="col">LuCI</th>
+            <th scope="col">SSH</th>
+            <th scope="col">Hostname</th>
+            <th scope="col">Firmware</th>
+            <th scope="col">Uptime</th>
+            <th scope="col">Clients</th>
+            <th scope="col" data->Comment</th>
+            <th scope="col">WiFi channel</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for openwrt in openwrts %}
+            {% set openwrt_url = 'http://' + openwrt.ip_address %}
+            {% set comment = openwrt.comment %}
+            {% if comment == '' %}{% set comment = '-' %}{% endif %}
+            {% set openwrt_detail = url_for('main.openwrts', openwrt_name=openwrt.name) %}
 
-    <div class="page-header" />
+            <tr name="{{ openwrt.name }}">
+                <th scope="row" id={{ openwrt.name }} name="name">
+                    <a name="openwrt_detail"
+                       {% if openwrt.luci == False %}disabled{% else %}href="{{ openwrt_detail }}"{% endif %}
+                       {% if openwrt.luci == False %}class="btn btn-sm btn-primary"
+                       {% else %}class="btn btn-sm btn-primary"{% endif %}>{{ openwrt.name }}</a>
+                </th>
+                <td name="ip_address"><a href="{{ openwrt_url }}" target='_blank'>{{ openwrt.ip_address }}</a></td>
+                <td name="ping" class="text-center">{{ render_tick_cross(openwrt.ping) }}</td>
+                <td name="luci" class="text-center">{{ render_tick_cross(openwrt.luci) }}</td>
+                <td name="ssh" class="text-center">{{ render_tick_cross(openwrt.ssh) }}</td>
+                <td name="hostname" class="col-md-1">{{ openwrt.hostname }}</td>
+                <td name="firmware" class="col-md-3">{{ openwrt.firmware }}</td>
+                <td name="uptime" class="col-md-1">{{ openwrt.uptime }}</td>
+                <td name="clients" class="col-md-1">{{ openwrt.clients }}</td>
+                <td name="comment" class="col-md-2" style="word-wrap: break-word;min-width: 160px;max-width: 160px;">
+                    <span href="#" name="comment" data-type="text" data-placement="top"
+                          data-title="Enter comment" data-value="" style="cursor: pointer">
+                        <div style="height:100%;width:100%;"><strong>{{ comment }}</strong></div>
+                    </span>
+                </td>
+                <td name="channel" class="col-md-2">
+                    <select class="form-control" id="channel_dropdown" name="channel_dropdown"
+                            {% if openwrt.luci == False %}disabled{% endif %} required="">
+                        <option value="auto" {% if openwrt.channel == 'auto' %}selected{% endif %}>auto</option>
+                        <option value="1" {% if openwrt.channel == '1' %}selected{% endif %}>1 (2412 MHz)</option>
+                        <option value="2" {% if openwrt.channel == '2' %}selected{% endif %}>2 (2417 MHz)</option>
+                        <option value="3" {% if openwrt.channel == '3' %}selected{% endif %}>3 (2422 MHz)</option>
+                        <option value="4" {% if openwrt.channel == '4' %}selected{% endif %}>4 (2427 MHz)</option>
+                        <option value="5" {% if openwrt.channel == '5' %}selected{% endif %}>5 (2432 MHz)</option>
+                        <option value="6" {% if openwrt.channel == '6' %}selected{% endif %}>6 (2437 MHz)</option>
+                        <option value="7" {% if openwrt.channel == '7' %}selected{% endif %}>7 (2442 MHz)</option>
+                        <option value="8" {% if openwrt.channel == '8' %}selected{% endif %}>8 (2447 MHz)</option>
+                        <option value="9" {% if openwrt.channel == '9' %}selected{% endif %}>9 (2452 MHz)</option>
+                        <option value="10" {% if openwrt.channel == '10' %}selected{% endif %}>10 (2457 MHz)</option>
+                        <option value="11" {% if openwrt.channel == '11' %}selected{% endif %}>11 (2462 MHz)</option>
+                    </select>
+                </td>
+                <td name="actions" class="col-md-2">
+                    <button name="update_btn" wrt="{{ openwrt.name }}" class="btn btn-sm btn-primary"
+                            href="/openwrts/update/{{ openwrt.name }}"
+                            {% if openwrt.luci == False %}disabled{% endif %}>
+                        <i class="glyphicon glyphicon-upload"></i> Update
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="page-header"/>
     <div>
-        <button  id="refresh" class="btn btn-primary btn-lg" type="button">Scan Network</button>
+        <button id="refresh" class="btn btn-primary btn-lg" type="button">Scan Network</button>
         <span id="refresh_status" style="display:none">
             <img style="padding-left: 10px" src="/static/img/loading_32.gif" alt="Loading"
                  style="vertical-align:middle"/>
@@ -141,22 +213,8 @@
             var update_endpoint = $(this)[0].getAttribute('href');
             var name = $(this)[0].getAttribute('wrt');
             console.log(name);
-            //toastr.info('Configuration update started.', name);
 
             socket.emit('update_openwrt', {"openwrt_name": name})
-
-            /*$.ajax({
-                type: 'POST',
-                url: '/openwrt/update/' + name,
-                success: function (data, textStatus, xhr) {
-                    toastr.success('Configuration update finished.', name);
-                },
-                error: function (data) {
-                    toastr.error('Configuration update failed.', name);
-                },
-                complete: function (data) {
-                },
-            });*/
         });
 
         $('#refresh').click(function () {

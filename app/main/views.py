@@ -1,6 +1,6 @@
 from flask import render_template, session, redirect, url_for, current_app, request, jsonify, Response, flash
 from .. import db
-from ..models import User, Openwrt, GlobalState, Network, WirelessNetwork, OpenwrtComments
+from ..models import User, Openwrt, Network, WirelessNetwork, OpenwrtComments
 from . import main, openwrt_api
 from flask_login import login_required, current_user
 from pprint import pprint
@@ -156,8 +156,6 @@ def edit_wireless(wireless_name):
             form.network.data = wireless.network
             form.hide_ssid.data = wireless.hide_ssid
             form.isolate_clients.data = wireless.isolate_clients
-            # form.is_vlan.data = wireless.vlan > 1 and wireless.vlan < 4097
-            # form.vlan.data = wireless.vlan
         else:
             if form.is_submitted():
                 if form.validate():
@@ -171,11 +169,6 @@ def edit_wireless(wireless_name):
                     wireless.network = form.network.data
                     wireless.hide_ssid = form.hide_ssid.data
                     wireless.isolate_clients = form.isolate_clients.data
-                    # wireless.is_vlan = form.is_vlan.data
-                    # if form.is_vlan.data == True:
-                    #     wireless.vlan = form.vlan.data
-                    # else:
-                    #     wireless.vlan = 1
                     db.session.commit()
                     return redirect(url_for('main.wireless'))
                 else:
@@ -218,7 +211,8 @@ def clients():
             continue
 
         wireless_devices = []
-        all_devices = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "net.devices", "params": []})
+        all_devices = openwrt_api.get_luci_result(openwrt.ip_address, 'sys',
+                                                  {"id": 1, "method": "net.devices", "params": []})
 
         for device in all_devices:
             if device.startswith("wlan"):
@@ -239,17 +233,12 @@ def clients():
             arp_pair = arp_line.split(' ')
             arptable_dict[arp_pair[1]] = arp_pair[0]
 
-        #print(arptable_dict)
-
         for wireless_device in wireless_devices:
             wireless_info = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "wifi.getiwinfo",
-                                                                         "params": [wireless_device]})
+                                                                                    "params": [wireless_device]})
 
             stations = wireless_info['assoclist']
-            #print(wireless_info)
-            #print(stations)
             if not stations:
-                #print('empty')
                 continue
 
             for client_mac in stations:
@@ -273,9 +262,6 @@ def clients():
 
                 assoc_list.append(client_info)
 
-
-                #print(assoc[0]['tx_ht'])
-
     print(assoc_list)
 
     return render_template('clients.html', assoc_list=assoc_list)
@@ -289,12 +275,14 @@ def openwrts(openwrt_name):
     if openwrt is None:
         return render_template('404.html')
     else:
-        boardinfoJson = json.loads(openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
-            "ubus call system board"]}))
+        boardinfoJson = json.loads(
+            openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
+                "ubus call system board"]}))
         print(boardinfoJson)
 
-        infoJson = json.loads(openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
-            "ubus call system info"]}))
+        infoJson = json.loads(
+            openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
+                "ubus call system info"]}))
         print(infoJson)
 
         loadavg = openwrt_api.get_luci_result(openwrt.ip_address, 'sys', {"id": 1, "method": "exec", "params": [
@@ -331,11 +319,11 @@ def openwrt_comment():
     openwrt = Openwrt.query.filter_by(name=content["openwrt_name"]).first()
     if openwrt is not None:
         openwrt.comment = content["comment"]
-        #print('comment: ' + openwrt.comment)
+        # print('comment: ' + openwrt.comment)
 
         openwrt_comment = OpenwrtComments.query.filter_by(id=openwrt.eth0_mac).first()
         if openwrt_comment is None:
-            new_comment = OpenwrtComments(id=openwrt.eth0_mac, comment = openwrt.comment)
+            new_comment = OpenwrtComments(id=openwrt.eth0_mac, comment=openwrt.comment)
             db.session.add(new_comment)
         else:
             openwrt_comment.comment = openwrt.comment
@@ -353,7 +341,7 @@ def refresh_all():
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": "",
                        "reason": "Cannot re-scan network - other OpenWrt update is in progress."},
-                        namespace='/ws')
+                      namespace='/ws')
         return jsonify(success=False, message="Refresh already in progress"), 409
 
     gevent.spawn(openwrt_api.refresh_all_openwrts, main_root.app, main_root.glob_update_lock)
@@ -393,7 +381,7 @@ def ws_update_openwrt(msg):
     if openwrt is None:
         return render_template('404.html')
 
-    #glob_update_lock.acquire()
+    # glob_update_lock.acquire()
 
     if not main_root.glob_update_lock.acquire(blocking=0):
         main_root.glob_update_lock.release()
@@ -448,10 +436,10 @@ def ws_update_openwrt(msg):
     #     return
 
     # this prevents race conditions, database "test-and-set" is not really atomic
-    #glob_update_lock.acquire()
+    # glob_update_lock.acquire()
 
     if not main_root.glob_update_lock.acquire(blocking=0):
-        #glob_update_lock.release()
+        # glob_update_lock.release()
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name,
                        "reason": "Update is already in progress."},
@@ -466,7 +454,8 @@ def ws_update_openwrt(msg):
     # Delete all non-default networks
     # - all anonymous interfaces
     # - all switch vlans > 2
-    all_network = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"id": 1, "method": "get_all", "params": ["network"]})
+    all_network = openwrt_api.get_luci_result(openwrt.ip_address, 'uci',
+                                              {"id": 1, "method": "get_all", "params": ["network"]})
     if all_network is "-":
         # openwrt.update_lock.release()
         socketio.emit('update_status',
@@ -522,7 +511,8 @@ def ws_update_openwrt(msg):
                                                        "ifname": "eth0." + str(nw.vlan)}]})
 
     # Wireless
-    all_wireless = openwrt_api.get_luci_result(openwrt.ip_address, 'uci', {"id": 1, "method": "get_all", "params": ["wireless"]})
+    all_wireless = openwrt_api.get_luci_result(openwrt.ip_address, 'uci',
+                                               {"id": 1, "method": "get_all", "params": ["wireless"]})
     if all_wireless is "-":
         # openwrt.update_lock.release()
         socketio.emit('update_status',

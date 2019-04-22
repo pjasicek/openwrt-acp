@@ -9,6 +9,7 @@ from .. import db
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    """Renders login view located at /login endpoint"""
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -21,19 +22,6 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
+    """Logs user out of his session and redirects to login view"""
     logout_user()
-    #flash('You have been logged out.')
     return redirect(url_for('auth.login'))
-
-
-# @auth.route('/register', methods=['GET', 'POST'])
-# def register():
-#     form = RegistrationForm()
-#     if form.validate_on_submit():
-#         user = User(username=form.username.data,
-#                     password=form.password.data)
-#         db.session.add(user)
-#         db.session.commit()
-#         flash('You can now login.')
-#         return redirect(url_for('auth.login'))
-#     return render_template('auth/register.html', form=form)
