@@ -16,14 +16,12 @@ class AddNetworkForm(FlaskForm):
         Regexp('^[A-Za-z0-9_]+$', 0,
                'Networks must have only letters, numbers or '
                'underscores')])
-    purpose = RadioField('Purpose', choices=[('Corporate', 'Corporate'), ('Guest', 'Guest')], default='Corporate')
     vlan = StringField('VLAN', render_kw={"placeholder": "2-4096"}, validators=[DataRequired()])
-    # TODO: Add validation, must be e.g. 10.0.0.1/24
-    network = StringField('Network', render_kw={"placeholder": "e.g. 10.0.50.0/24"}, validators=[DataRequired()])
-    gateway = StringField('Gateway', render_kw={"placeholder": "e.g. 10.0.50.1"}, validators=[DataRequired()])
+    configure_gateway = BooleanField('Configure Gateway', default=False)
+
+    gateway = StringField('Gateway IP', render_kw={"placeholder": "e.g. 10.0.50.1"})
+    network = StringField('Network', render_kw={"placeholder": "e.g. 10.0.50.0/24"})
     dhcp_mode = RadioField('DHCP Mode', choices=[('1', 'DHCP Server'), ('0', 'None')], default='1')
-    # TODO: Add DHCP Range
-    # TODO: Validate lease time ?
     dhcp_lease_time = StringField('DHCP Lease Time', validators=[DataRequired()], default=86400)
 
     submit = SubmitField('Save')
@@ -41,28 +39,30 @@ class AddNetworkForm(FlaskForm):
             raise ValidationError('Network name is already in use')
 
     def validate_network(self, field):
-        if not self.is_edit and Network.query.filter_by(network_addr=field.data).first():
-            raise ValidationError('Network subnet is already in use')
-        toks = field.data.split("/")
-        if len(toks) != 2:
-            raise ValidationError('Invalid format')
-        try:
-            netmask = int(toks[1])
-            if netmask < 0 or netmask > 32:
+        if self.configure_gateway.data is True:
+            if not self.is_edit and Network.query.filter_by(network_addr=field.data).first():
+                raise ValidationError('Network subnet is already in use')
+            toks = field.data.split("/")
+            if len(toks) != 2:
+                raise ValidationError('Invalid format')
+            try:
+                netmask = int(toks[1])
+                if netmask < 0 or netmask > 32:
+                    raise ValidationError('Invalid netmask')
+            except ValueError:
                 raise ValidationError('Invalid netmask')
-        except ValueError:
-            raise ValidationError('Invalid netmask')
 
-        try:
-            socket.inet_aton(toks[0])
-        except socket.error:
-            raise ValidationError('Invalid network address')
+            try:
+                socket.inet_aton(toks[0])
+            except socket.error:
+                raise ValidationError('Invalid network address')
 
     def validate_gateway(self, field):
-        try:
-            socket.inet_aton(field.data)
-        except socket.error:
-            raise ValidationError('Invalid gateway address')
+        if self.configure_gateway.data is True:
+            try:
+                socket.inet_aton(field.data)
+            except socket.error:
+                raise ValidationError('Invalid gateway address')
 
 
 class AddWirelessForm(FlaskForm):

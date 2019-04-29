@@ -28,9 +28,10 @@
             <tr>
                 <th scope="col">Name</th>
                 {# <th scope="col">Purpose</th> #}
-                <th scope="col">Network Address</th>
-                <th scope="col">Gateway IP</th>
                 <th scope="col">VLAN</th>
+                <th scope="col">Configure Gateway</th>
+                <th scope="col">Gateway IP</th>
+                <th scope="col">Network Address</th>
                 <th scope="col">Actions</th>
             </tr>
             </thead>
@@ -41,9 +42,10 @@
                     {#
                     <td name="purpose" class="col-md-2">{{ network.purpose }}</td>
                     #}
-                    <td name="ip_address" class="col-md-2">{{ network.network_addr }}</td>
-                    <td name="gateway_ip" class="col-md-2">{{ network.gateway }}</td>
                     <td name="vlan" class="col-md-1">{{ network.vlan }}</td>
+                    <td name="configure_gateway" class="col-md-2">{{ network.configure_gateway }}</td>
+                    <td name="gateway_ip" class="col-md-2">{{ network.gateway }}</td>
+                    <td name="ip_address" class="col-md-2">{{ network.network_addr }}</td>
                     <td name="actions" class="col-md-2">
                         <a name="network_edit" class="btn btn-primary" style="width: 80px"
                            href="/network/edit/{{ network.name }}">

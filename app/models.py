@@ -49,6 +49,7 @@ class Network(db.Model, Base):
     network_addr = db.Column(db.String(32), unique=True, nullable=False)
     gateway = db.Column(db.String(32), nullable=False)
     vlan = db.Column(db.Integer, default="")
+    configure_gateway = db.Column(db.Boolean, default=False)
     is_dhcp_mode = db.Column(db.Boolean, default=True)
     dhcp_range_from = db.Column(db.String(32), unique=True)
     dhcp_range_to = db.Column(db.String(32), unique=True)

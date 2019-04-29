@@ -47,18 +47,7 @@
                 </div>
             </div>
             #}
-            <div class="form-group">
-                {{ form.network.label(class_="col-sm-3 control-label") }}
-                <div class="col-sm-8">
-                    {{ form.network(class_="form-control") }}
-                </div>
-            </div>
-            <div class="form-group">
-                {{ form.gateway.label(class_="col-sm-3 control-label") }}
-                <div class="col-sm-8">
-                    {{ form.gateway(class_="form-control") }}
-                </div>
-            </div>
+
             <div class="form-group">
                 {{ form.vlan.label(class_="col-sm-3 control-label") }}
                 <div class="col-sm-8">
@@ -66,15 +55,36 @@
                 </div>
             </div>
             <div class="form-group">
-                {{ form.dhcp_mode.label(class_="col-sm-3 control-label") }}
-                <div class="col-sm-8 radio">
-                    {{ form.dhcp_mode() }}
+                {{ form.configure_gateway.label(class_="col-sm-3 control-label") }}
+                <div class="col-sm-8">
+                    {{ form.configure_gateway() }}
                 </div>
             </div>
-            <div class="form-group">
-                {{ form.dhcp_lease_time.label(class_="col-sm-3 control-label") }}
-                <div class="col-sm-8">
-                    {{ form.dhcp_lease_time(class_="form-control") }}
+
+            <div id="div_gateway_config">
+                <div class="form-group">
+                    {{ form.gateway.label(class_="col-sm-3 control-label") }}
+                    <div class="col-sm-8">
+                        {{ form.gateway(class_="form-control") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.network.label(class_="col-sm-3 control-label") }}
+                    <div class="col-sm-8">
+                        {{ form.network(class_="form-control") }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.dhcp_mode.label(class_="col-sm-3 control-label") }}
+                    <div class="col-sm-8 radio">
+                        {{ form.dhcp_mode() }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.dhcp_lease_time.label(class_="col-sm-3 control-label") }}
+                    <div class="col-sm-8">
+                        {{ form.dhcp_lease_time(class_="form-control") }}
+                    </div>
                 </div>
             </div>
             {% for message in get_flashed_messages() %}
@@ -98,7 +108,23 @@
 
     <script>
         $(document).ready(function () {
+            var configureGatewayCheckbox = $("input[name='configure_gateway']");
 
+            if (configureGatewayCheckbox.is(":checked")) {
+                $("#div_gateway_config").show();
+            }
+            else {
+                $("#div_gateway_config").hide();
+            }
+
+            configureGatewayCheckbox.change(function () {
+                if ($(this).is(":checked")) {
+                    $("#div_gateway_config").show();
+                }
+                else {
+                    $("#div_gateway_config").hide();
+                }
+            });
         });
     </script>
 {% endblock %}

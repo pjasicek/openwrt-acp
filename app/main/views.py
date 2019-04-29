@@ -78,6 +78,7 @@ def edit_network(network_name):
             form.network.data = network.network_addr
             form.gateway.data = network.gateway
             form.vlan.data = network.vlan
+            form.configure_gateway.data = network.configure_gateway
         else:
             if form.is_submitted():
                 if form.validate():
@@ -85,6 +86,7 @@ def edit_network(network_name):
                     network.network_addr = form.network.data
                     network.gateway = form.gateway.data
                     network.vlan = form.vlan.data
+                    network.configure_gateway = form.configure_gateway.data
                     db.session.commit()
                     return redirect(url_for('main.network'))
                 else:
