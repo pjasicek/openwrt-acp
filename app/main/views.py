@@ -393,7 +393,6 @@ def ws_update_openwrt(msg):
                       namespace='/ws')
         return
 
-    openwrt.update_in_progress = True
     db.session.commit()
 
     main_root.glob_update_lock.release()
@@ -412,7 +411,6 @@ def ws_update_openwrt(msg):
                        "reason": "Channel update failed."},
                       namespace='/ws')
 
-    openwrt.update_in_progress = False
     db.session.commit()
 
     return
@@ -448,7 +446,6 @@ def ws_update_openwrt(msg):
                       namespace='/ws')
         return
 
-    openwrt.update_in_progress = True
     db.session.commit()
 
     socketio.emit('update_status', {"status_type": "started", "openwrt_name": openwrt_name}, namespace='/ws')
@@ -463,7 +460,6 @@ def ws_update_openwrt(msg):
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
                       namespace='/ws')
-        openwrt.update_in_progress = False
         db.session.commit()
         main_root.glob_update_lock.release()
         return
@@ -520,7 +516,6 @@ def ws_update_openwrt(msg):
         socketio.emit('update_status',
                       {"status_type": "error", "openwrt_name": openwrt_name, "reason": "LuCI error."},
                       namespace='/ws')
-        openwrt.update_in_progress = False
         db.session.commit()
     print("will delete wireless: " + str(all_wireless))
 
@@ -580,7 +575,6 @@ def ws_update_openwrt(msg):
     socketio.emit('update_status', {"status_type": "finished", "openwrt_name": msg['openwrt_name']}, namespace='/ws')
 
     # openwrt.update_lock.release()
-    openwrt.update_in_progress = False
     db.session.commit()
     main_root.glob_update_lock.release()
 

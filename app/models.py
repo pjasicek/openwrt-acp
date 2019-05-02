@@ -20,16 +20,9 @@ class Openwrt(db.Model, Base):
     firmware = db.Column(db.String(128), default="-")
     uptime = db.Column(db.String(64), default="-")
     clients = db.Column(db.String(64), default="-")
-    down = db.Column(db.String(64), default="-")
-    up = db.Column(db.String(64), default="-")
     comment = db.Column(db.String(256), default="")
     channel = db.Column(db.String(32), default="-")
     eth0_mac = db.Column(db.String(64), default="")
-
-    # These data are for OpenWRT update
-    update_in_progress = db.Column(db.Boolean, default=False)
-
-    update_lock = Lock()
 
     def __repr__(self):
         return '<OpenWRT %r>' % self.name
@@ -45,7 +38,6 @@ class Network(db.Model, Base):
     __tablename__ = 'networks'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
-    purpose = db.Column(db.String(64))
     network_addr = db.Column(db.String(32), unique=True, nullable=False)
     gateway = db.Column(db.String(32), nullable=False)
     vlan = db.Column(db.Integer, default="")
@@ -67,26 +59,12 @@ class WirelessNetwork(db.Model, Base):
     security_type = db.Column(db.String(64), default="Open")
     password = db.Column(db.String(128), default="")
     network = db.Column(db.String(128), default="")
-    is_vlan = db.Column(db.Boolean, default=True)
     vlan = db.Column(db.Integer, default=0)
     hide_ssid = db.Column(db.Boolean, default=False)
     isolate_clients = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<WirelessNetwork %r>' % self.ssid
-
-
-class WirelessClients(db.Model, Base):
-    __tablename__ = 'wireless_clients'
-    id = db.Column(db.Integer, primary_key=True)
-    ssid = db.Column(db.String(128), default="")
-    ip_address = db.Column(db.String(128), default="")
-    mac_address = db.Column(db.String(128), default="")
-    signal_noise = db.Column(db.String(128), default="")
-    rxtx_rate = db.Column(db.String(128), default="")
-
-    def __repr__(self):
-        return '<WirelessClients %r>' % self.id
 
 
 class User(UserMixin, db.Model):

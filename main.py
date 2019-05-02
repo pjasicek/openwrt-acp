@@ -25,48 +25,51 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 glob_update_lock = Lock()
 
 
+recreate_db=True
+
 # Create default database configurations
 with app.app_context():
-    db.drop_all()
-    db.create_all()
+    if recreate_db is True:
+        db.drop_all()
+        db.create_all()
 
+        with open('data/openwrts.json') as openwrtJsonFile:
+            openwrtsJson = json.load(openwrtJsonFile)
+
+        for openwrtJson in openwrtsJson["openwrts"]:
+            openwrt = Openwrt(name=openwrtJson["name"], ip_address=openwrtJson["ip_address"])
+            db.session.add(openwrt)
+
+        with open('data/networks_default.json') as networksJsonFile:
+            networksJson = json.load(networksJsonFile)
+
+        for networkJson in networksJson["networks"]:
+            network = Network(name=networkJson["name"],
+                              network_addr=networkJson["network_addr"],
+                              gateway=networkJson["gateway"],
+                              vlan=networkJson["vlan"],
+                              is_dhcp_mode=networkJson["is_dhcp_mode"],
+                              dhcp_range_from=networkJson["dhcp_range_from"],
+                              dhcp_range_to=networkJson["dhcp_range_to"],
+                              dhcp_lease_time=networkJson["dhcp_lease_time"])
+            db.session.add(network)
+
+        with open('data/ssid_default.json') as wirelessNetworksJsonFile:
+            ssidsJson = json.load(wirelessNetworksJsonFile)
+
+        for ssidJson in ssidsJson["ssids"]:
+            ssid = WirelessNetwork(ssid=ssidJson["ssid"],
+                                   enabled=ssidJson["enabled"],
+                                   security_type=ssidJson["security_type"],
+                                   password=ssidJson["password"],
+                                   vlan=ssidJson["vlan"],
+                                   network=ssidJson["network"])
+            db.session.add(ssid)
+
+    # Always create user from config file
+    db.session.query(User).delete()
     login_user = User(username=app.config['LOGIN_USERNAME'], password=app.config['LOGIN_PASSWORD'])
     db.session.add(login_user)
-
-    with open('data/openwrts.json') as openwrtJsonFile:
-        openwrtsJson = json.load(openwrtJsonFile)
-
-    for openwrtJson in openwrtsJson["openwrts"]:
-        openwrt = Openwrt(name=openwrtJson["name"], ip_address=openwrtJson["ip_address"])
-        db.session.add(openwrt)
-
-    with open('data/networks_default.json') as networksJsonFile:
-        networksJson = json.load(networksJsonFile)
-
-    for networkJson in networksJson["networks"]:
-        network = Network(name=networkJson["name"],
-                          purpose=networkJson["purpose"],
-                          network_addr=networkJson["network_addr"],
-                          gateway=networkJson["gateway"],
-                          vlan=networkJson["vlan"],
-                          is_dhcp_mode=networkJson["is_dhcp_mode"],
-                          dhcp_range_from=networkJson["dhcp_range_from"],
-                          dhcp_range_to=networkJson["dhcp_range_to"],
-                          dhcp_lease_time=networkJson["dhcp_lease_time"])
-        db.session.add(network)
-
-    with open('data/ssid_default.json') as wirelessNetworksJsonFile:
-        ssidsJson = json.load(wirelessNetworksJsonFile)
-
-    for ssidJson in ssidsJson["ssids"]:
-        ssid = WirelessNetwork(ssid=ssidJson["ssid"],
-                               enabled=ssidJson["enabled"],
-                               security_type=ssidJson["security_type"],
-                               password=ssidJson["password"],
-                               is_vlan=ssidJson["is_vlan"],
-                               vlan=ssidJson["vlan"],
-                               network=ssidJson["network"])
-        db.session.add(ssid)
 
     db.session.commit()
 

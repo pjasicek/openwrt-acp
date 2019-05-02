@@ -10,6 +10,9 @@ from .. import db
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     """Renders login view located at /login endpoint"""
+    if current_user.is_authenticated:
+        return redirect(request.args.get('next') or url_for('main.index'))
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
